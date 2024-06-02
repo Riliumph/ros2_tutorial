@@ -1,0 +1,71 @@
+FROM ubuntu:24.04
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+ARG DEFAULT_ARCIVE_URL=http://archive.ubuntu.com/ubuntu/
+ARG NEW_ARCHIVE_URL=http://ftp.jaist.ac.jp/pub/Linux/ubuntu/
+RUN sed -i "s@${DEFAULT_ARCIVE_URL}@${NEW_ARCHIVE_URL}@g" /etc/apt/sources.list.d/ubuntu.sources
+RUN apt-get -qq update &&\
+    DEBIAN_FRONTEND=noninteractive apt-get -qq install --no-install-recommends -y\
+    ## util
+    sudo ca-certificates software-properties-common libssl-dev\
+    locales\
+    less silversearcher-ag peco\
+    git vim\
+    ## network tools
+    lsof curl wget dnsutils iproute2 iputils-ping traceroute\
+    ## C++
+    build-essential cmake\
+    libgtest-dev\
+    libpqxx-dev\
+    nlohmann-json3-dev\
+    && apt-get clean\
+    && rm -rf /var/lib/apt/lists/*
+
+# setting locale
+ENV LANG=ja_JP.UTF-8
+RUN locale-gen ja_JP ja_JP.UTF-8 &&\
+    update-locale LC_ALL=ja_JP.UTF-8 LANG=ja_JP.UTF-8 &&\
+    locale
+
+# add ros package repository
+ENV ROS_DISTRO=jazzy
+ARG ROS_KEYRING_URL=https://raw.githubusercontent.com/ros/rosdistro/master/ros.key
+ARG ROS_KEYRING_PATH=/usr/share/keyrings/ros-archive-keyring.gpg
+RUN add-apt-repository -y universe &&\
+    curl -sL $ROS_KEYRING_URL -o $ROS_KEYRING_PATH &&\
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=$ROS_KEYRING_PATH] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo ${UBUNTU_CODENAME}) main" > /etc/apt/sources.list.d/ros2.list
+
+RUN apt-get -qq update &&\
+    DEBIAN_FRONTEND=noninteractive apt-get -qq install --no-install-recommends -y\
+    ros-dev-tools\
+    ros-${ROS_DISTRO}-desktop\
+    python3-argcomplete\
+    python3-colcon-common-extensions\
+    python3-rosdep\
+    && apt-get clean\
+    && rm -rf /var/lib/apt/lists/*
+
+## /etc/ros/rosdep/sources.list.d/にリポジトリリストを構築
+RUN rosdep init
+## DL系コマンドはイメージが重くなるので使わない
+# RUN rosdep update
+
+# install hadolint
+ARG HADOLINT_URL=https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64
+ARG HADOLINT_PATH=/usr/local/bin/hadolint
+RUN curl -sL --insecure ${HADOLINT_URL} -o ${HADOLINT_PATH} &&\
+    chmod +x ${HADOLINT_PATH}
+
+# user definition
+ENV USER=ubuntu
+RUN echo "${USER}:${USER}" | chpasswd
+
+USER ubuntu
+WORKDIR /home/ubuntu
+RUN rm -rf bin &&\
+    mkdir -p bin
+COPY diff-highlight bin
+# ROS
+RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> "$HOME/.bashrc" &&\
+    # pecoのバグ回避策（https://github.com/peco/peco/issues/541）
+    echo "export TERM=xterm" >> "$HOME/.bashrc"
