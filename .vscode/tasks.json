@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "debug",
+			"command": "colcon",
+			"args": [
+				"build"
+			],
+			"options": {},
+			"group": "build",
+			"detail": "compiler: /usr/bin/cpp"
+		}
+	]
+}

@@ -1,0 +1,29 @@
+{
+    "configurations": [
+        // intellisense用設定
+        {
+            "name": "Linux",
+            "includePath": [
+                "/usr/include/**",
+                "/usr/local/include/**",
+                "/opt/ros/jazzy/include/**",
+                "${workspaceFolder}/ros_ws/pkg/**",
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "compilerArgs": [
+                "-Wall",
+                "-Wextra",
+                "-std=c++23"
+            ],
+            "cStandard": "c23",
+            "cppStandard": "c++23",
+            "intelliSenseMode": "linux-gcc-x64",
+            "configurationProvider": "ms-vscode.makefile-tools",
+            "browse": {
+                // TagParser用設定
+            }
+        }
+    ],
+    "version": 4
+}
