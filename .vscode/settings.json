@@ -1,0 +1,44 @@
+{
+    "[c++]": {
+        "editor.formatOnSave": true,
+        "editor.tabSize": 2,
+        "files.insertFinalNewline": true,
+    },
+    "[sql]": {
+        "editor.formatOnSave": false,
+        "editor.tabSize": 2,
+        "files.insertFinalNewline": true
+    },
+    "C_Cpp.autoAddFileAssociations": false,
+    "C_Cpp.clang_format_fallbackStyle": "Mozilla",
+    "C_Cpp.clang_format_style": "Mozilla",
+    "C_Cpp.clang_format_sortIncludes": true,
+    "cSpell.words": [],
+    "editor.tokenColorCustomizations": {
+        "textMateRules": [
+            {
+                "scope": "googletest.failed",
+                "settings": {
+                    "foreground": "#f00"
+                }
+            },
+            {
+                "scope": "googletest.passed",
+                "settings": {
+                    "foreground": "#0f0"
+                }
+            },
+            {
+                "scope": "googletest.run",
+                "settings": {
+                    "foreground": "#00f"
+                }
+            }
+        ]
+    },
+    "gtest-adapter.debugConfig": [
+        "Unit Test",
+    ],
+    "gtest-adapter.supportLocation": true,
+    "sql-formatter.uppercase": true,
+}
