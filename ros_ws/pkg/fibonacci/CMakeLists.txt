@@ -7,31 +7,47 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(ament_cmake_ros REQUIRED)
+# find_package(ament_cmake_ros REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_action REQUIRED)
+find_package(rclcpp_components REQUIRED)
+# original package
+find_package(fibonacci_msg REQUIRED)
 
 # サーバーライブラリ
 set(ACT_SRV_LIB "fibonacci_action_server") # 接頭辞libは不要
-add_library(${ACT_SRV_LIB} src/fibonacci_action_server.cpp)
+add_library(${ACT_SRV_LIB} SHARED
+ src/fibonacci_action_server.cpp
+)
 add_library(fibonacci::fibonacci_action_server ALIAS ${ACT_SRV_LIB})
 target_compile_features(${ACT_SRV_LIB} PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 target_include_directories(${ACT_SRV_LIB} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/${PROJECT_NAME}>)
+  $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
+)
+ament_target_dependencies(${ACT_SRV_LIB}
+  "rclcpp"
+  "rclcpp_action"
+  "rclcpp_components"
+  "fibonacci_msg"
+)
 
 # Causes the visibility macros to use dllexport rather than dllimport,
 # which is appropriate when building the dll but not consuming it.
-target_compile_definitions(${ACT_SRV_LIB} PRIVATE "FIBONACCI_BUILDING_LIBRARY")
+target_compile_definitions(${ACT_SRV_LIB}
+  PRIVATE "FIBONACCI_BUILDING_LIBRARY"
+)
 
 install(
   DIRECTORY include/
   DESTINATION include/${PROJECT_NAME}
 )
-install(
-  TARGETS ${ACT_SRV_LIB}
-  EXPORT export_${PROJECT_NAME}
+
+install(TARGETS ${ACT_SRV_LIB}
+  # EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
@@ -49,14 +65,14 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-ament_export_include_directories(
-  "include/${PROJECT_NAME}"
-)
-ament_export_libraries(
-  ${ACT_SRV_LIB}
-)
-ament_export_targets(
-  export_${PROJECT_NAME}
-)
+# ament_export_include_directories(
+#   "include/${PROJECT_NAME}"
+# )
+# ament_export_libraries(
+#   ${ACT_SRV_LIB}
+# )
+# ament_export_targets(
+#   export_${PROJECT_NAME}
+# )
 
 ament_package()
