@@ -12,23 +12,25 @@ find_package(ament_cmake_ros REQUIRED)
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
-add_library(fibonacci_action_server src/fibonacci_action_server.cpp)
-add_library(fibonacci::fibonacci_action_server ALIAS fibonacci_action_server)
-target_compile_features(fibonacci_action_server PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
-target_include_directories(fibonacci_action_server PUBLIC
+# サーバーライブラリ
+set(ACT_SRV_LIB "fibonacci_action_server") # 接頭辞libは不要
+add_library(${ACT_SRV_LIB} src/fibonacci_action_server.cpp)
+add_library(fibonacci::fibonacci_action_server ALIAS ${ACT_SRV_LIB})
+target_compile_features(${ACT_SRV_LIB} PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+target_include_directories(${ACT_SRV_LIB} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>)
 
 # Causes the visibility macros to use dllexport rather than dllimport,
 # which is appropriate when building the dll but not consuming it.
-target_compile_definitions(fibonacci_action_server PRIVATE "FIBONACCI_BUILDING_LIBRARY")
+target_compile_definitions(${ACT_SRV_LIB} PRIVATE "FIBONACCI_BUILDING_LIBRARY")
 
 install(
   DIRECTORY include/
   DESTINATION include/${PROJECT_NAME}
 )
 install(
-  TARGETS fibonacci_action_server
+  TARGETS ${ACT_SRV_LIB}
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -51,7 +53,7 @@ ament_export_include_directories(
   "include/${PROJECT_NAME}"
 )
 ament_export_libraries(
-  fibonacci_action_server
+  ${ACT_SRV_LIB}
 )
 ament_export_targets(
   export_${PROJECT_NAME}
