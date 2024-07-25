@@ -1,26 +1,23 @@
 #include "fibonacci/fibonacci_action_server.hpp"
 
 namespace fibonacci {
-const char* node_name = "fibonacci_action_server_node";
-const char* server_name = "fibonacci_action_server";
 
 /// @brief コンストラクタ
 /// @param options ROS2のノード設定
-FibonacciActionServer::FibonacciActionServer(
-  const rclcpp::NodeOptions& options = rclcpp::NodeOptions())
+FibonacciActionServer::FibonacciActionServer(const rclcpp::NodeOptions& options)
   : Node(node_name, options)
 {
-  // using namespace std::placeholders;
+  RCLCPP_DEBUG(this->get_logger(), "Establish Server");
   auto goal_handler = [this](const rclcpp_action::GoalUUID& uuid,
                              std::shared_ptr<const ActMsg::Goal> goal) {
     RCLCPP_INFO(
-      get_logger(), "Received goal request with order %d", goal->order);
+      this->get_logger(), "Received goal request with order %d", goal->order);
     (void)uuid;
     return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
   };
 
   auto cancel_handler = [this](const std::shared_ptr<GoalHandle> goal_handle) {
-    RCLCPP_INFO(get_logger(), "Received request to cancel goal");
+    RCLCPP_INFO(this->get_logger(), "Received request to cancel goal");
     (void)goal_handle;
     return rclcpp_action::CancelResponse::ACCEPT;
   };
@@ -29,7 +26,7 @@ FibonacciActionServer::FibonacciActionServer(
     // エグゼキュータをブロックしないように迅速に返す必要があるので、
     // 新しいスレッド内で呼び出されるラムダ関数を宣言します
     auto execute_in_thread = [this, goal_handle]() {
-      return execute(goal_handle);
+      return this->execute(goal_handle);
     };
     std::thread{ execute_in_thread }.detach();
   };
@@ -43,7 +40,7 @@ FibonacciActionServer::FibonacciActionServer(
 void
 FibonacciActionServer::execute(const std::shared_ptr<GoalHandle> goal_handle)
 {
-  RCLCPP_INFO(get_logger(), "Executing goal");
+  RCLCPP_INFO(this->get_logger(), "Executing goal");
   rclcpp::Rate loop_rate(1);
   const auto goal = goal_handle->get_goal();
   auto feedback = std::make_shared<ActMsg::Feedback>();
@@ -57,14 +54,14 @@ FibonacciActionServer::execute(const std::shared_ptr<GoalHandle> goal_handle)
     if (goal_handle->is_canceling()) {
       result->sequence = sequence;
       goal_handle->canceled(result);
-      RCLCPP_INFO(get_logger(), "Goal canceled");
+      RCLCPP_INFO(this->get_logger(), "Goal canceled");
       return;
     }
     // Update sequence
     sequence.push_back(sequence[i] + sequence[i - 1]);
     // Publish feedback
     goal_handle->publish_feedback(feedback);
-    RCLCPP_INFO(get_logger(), "Publish feedback");
+    RCLCPP_INFO(this->get_logger(), "Publish feedback");
 
     loop_rate.sleep();
   }
@@ -73,7 +70,7 @@ FibonacciActionServer::execute(const std::shared_ptr<GoalHandle> goal_handle)
   if (rclcpp::ok()) {
     result->sequence = sequence;
     goal_handle->succeed(result);
-    RCLCPP_INFO(get_logger(), "Goal succeeded");
+    RCLCPP_INFO(this->get_logger(), "Goal succeeded");
   }
 };
 

@@ -20,14 +20,22 @@ find_package(fibonacci_msg REQUIRED)
 # サーバーライブラリ
 set(ACT_SRV_LIB "fibonacci_action_server") # 接頭辞libは不要
 add_library(${ACT_SRV_LIB} SHARED
- src/fibonacci_action_server.cpp
+  src/fibonacci_action_server.cpp
+  src/fibonacci_action_server_main.cpp
 )
-add_library(fibonacci::fibonacci_action_server ALIAS ${ACT_SRV_LIB})
-target_compile_features(${ACT_SRV_LIB} PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 target_include_directories(${ACT_SRV_LIB} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
 )
+target_compile_features(${ACT_SRV_LIB}
+  PUBLIC c_std_99 cxx_std_17 # Require C99 and C++17
+)
+# Causes the visibility macros to use dllexport rather than dllimport,
+# which is appropriate when building the dll but not consuming it.
+target_compile_definitions(${ACT_SRV_LIB}
+  PRIVATE "FIBONACCI_BUILDING_LIBRARY"
+)
+
 ament_target_dependencies(${ACT_SRV_LIB}
   "rclcpp"
   "rclcpp_action"
@@ -35,10 +43,11 @@ ament_target_dependencies(${ACT_SRV_LIB}
   "fibonacci_msg"
 )
 
-# Causes the visibility macros to use dllexport rather than dllimport,
-# which is appropriate when building the dll but not consuming it.
-target_compile_definitions(${ACT_SRV_LIB}
-  PRIVATE "FIBONACCI_BUILDING_LIBRARY"
+# サーバーバイナリ
+set(ACT_SRV_BIN "fibonacci_action_server_node")
+rclcpp_components_register_node(${ACT_SRV_LIB}
+ PLUGIN "fibonacci::FibonacciActionServer"
+ EXECUTABLE ${ACT_SRV_BIN}
 )
 
 install(
@@ -46,12 +55,14 @@ install(
   DESTINATION include/${PROJECT_NAME}
 )
 
-install(TARGETS ${ACT_SRV_LIB}
-  # EXPORT export_${PROJECT_NAME}
+install(
+  TARGETS ${ACT_SRV_LIB}
+  EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
 )
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -65,14 +76,18 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-# ament_export_include_directories(
-#   "include/${PROJECT_NAME}"
-# )
-# ament_export_libraries(
-#   ${ACT_SRV_LIB}
-# )
-# ament_export_targets(
-#   export_${PROJECT_NAME}
-# )
+
+# ヘッダファイルのディレクトリ情報を他パッケージが使えるようにCMakeへエクスポート
+ament_export_include_directories(
+  "include/${PROJECT_NAME}"
+)
+# ライブラリのファイル情報を他パッケージが使えるようにCMakeへエクスポート
+ament_export_libraries(
+  ${ACT_SRV_LIB}
+)
+# パッケージの情報を他パッケージが使えるようにCMakeへエクスポート
+ament_export_targets(
+  export_${PROJECT_NAME}
+)
 
 ament_package()

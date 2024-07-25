@@ -43,11 +43,19 @@ ros_ws/
 └ install/
   └ fibonacci/
     ├ include/
-    | └ fibonacci
-    |   └ fibonacci
+    | └ fibonacci/
+    |   └ fibonacci/
     |     ├ fibonacci_action_server.hpp
     |     └ visibility_control.h
     ├ lib/
+    | ├ fibonacci/
+    | | └ fibonacci_action_server_node*
     | └ libfibonacci_action_server.so
     └ share/
+```
+
+## 実行方法
+
+```console
+$ ros2 run fibonacci fibonacci_action_server_node
 ```

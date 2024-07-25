@@ -5,8 +5,8 @@
 #include <memory>
 #include <thread>
 // ROS2
-#include "rclcpp/rclcpp.hpp"
-#include "rclcpp_action/rclcpp_action.hpp"
+#include <rclcpp/rclcpp.hpp>
+#include <rclcpp_action/rclcpp_action.hpp>
 // ROS2 automatically created definition
 #include "fibonacci/visibility_control.h"
 #include "fibonacci_msg/action/fibonacci.hpp"
@@ -19,13 +19,11 @@ class FibonacciActionServer : public rclcpp::Node
   using GoalHandle = rclcpp_action::ServerGoalHandle<ActMsg>;
 
 public:
-  static const char* node_name;
-  static const char* server_name;
+  static constexpr const char* node_name = "fibonacci_action_server_node";
+  static constexpr const char* server_name = "fibonacci_action_server";
 
   FIBONACCI_PUBLIC explicit FibonacciActionServer(
-    const rclcpp::NodeOptions& options);
-
-  virtual ~FibonacciActionServer();
+    const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   rclcpp_action::Server<ActMsg>::SharedPtr action_server_;
