@@ -63,6 +63,41 @@ install(
   RUNTIME DESTINATION bin
 )
 
+# クライアントライブラリ
+set(ACT_CLI_LIB "fibonacci_action_client") # 接頭辞libは不要
+add_library(${ACT_CLI_LIB} SHARED
+  src/fibonacci_action_client.cpp
+  src/fibonacci_action_client_main.cpp
+)
+target_include_directories(${ACT_CLI_LIB} PRIVATE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include/${PROJECT_NAME}
+)
+target_compile_features(${ACT_CLI_LIB}
+  PUBLIC c_std_99 cxx_std_17 # Require C99 and C++17
+)
+target_compile_definitions(${ACT_CLI_LIB}
+  PRIVATE "FIBONACCI_BUILDING_LIBRARY"
+)
+ament_target_dependencies(${ACT_CLI_LIB}
+  "rclcpp"
+  "rclcpp_action"
+  "rclcpp_components"
+  "fibonacci_msg"
+)
+# クライアントバイナリ
+set(ACT_CLI_BIN "fibonacci_action_client_node")
+rclcpp_components_register_node(${ACT_CLI_LIB}
+  PLUGIN "fibonacci::FibonacciActionClient"
+  EXECUTABLE ${ACT_CLI_BIN}
+)
+
+install(
+  TARGETS ${ACT_CLI_LIB}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -84,6 +119,7 @@ ament_export_include_directories(
 # ライブラリのファイル情報を他パッケージが使えるようにCMakeへエクスポート
 ament_export_libraries(
   ${ACT_SRV_LIB}
+  ${ACT_CLI_LIB}
 )
 # パッケージの情報を他パッケージが使えるようにCMakeへエクスポート
 ament_export_targets(
