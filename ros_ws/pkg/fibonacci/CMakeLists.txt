@@ -17,7 +17,7 @@ find_package(rclcpp_components REQUIRED)
 # original package
 find_package(fibonacci_msg REQUIRED)
 
-# サーバーライブラリ
+# アクションサーバーライブラリ
 set(ACT_SRV_LIB "fibonacci_action_server") # 接頭辞libは不要
 add_library(${ACT_SRV_LIB} SHARED
   src/fibonacci_action_server.cpp
@@ -30,40 +30,23 @@ target_include_directories(${ACT_SRV_LIB} PUBLIC
 target_compile_features(${ACT_SRV_LIB}
   PUBLIC c_std_99 cxx_std_17 # Require C99 and C++17
 )
-# Causes the visibility macros to use dllexport rather than dllimport,
-# which is appropriate when building the dll but not consuming it.
 target_compile_definitions(${ACT_SRV_LIB}
   PRIVATE "FIBONACCI_BUILDING_LIBRARY"
 )
-
 ament_target_dependencies(${ACT_SRV_LIB}
   "rclcpp"
   "rclcpp_action"
   "rclcpp_components"
   "fibonacci_msg"
 )
-
-# サーバーバイナリ
+# アクションサーバーバイナリ
 set(ACT_SRV_BIN "fibonacci_action_server_node")
 rclcpp_components_register_node(${ACT_SRV_LIB}
  PLUGIN "fibonacci::FibonacciActionServer"
  EXECUTABLE ${ACT_SRV_BIN}
 )
 
-install(
-  DIRECTORY include/
-  DESTINATION include/${PROJECT_NAME}
-)
-
-install(
-  TARGETS ${ACT_SRV_LIB}
-  EXPORT export_${PROJECT_NAME}
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
-)
-
-# クライアントライブラリ
+# アクションクライアントライブラリ
 set(ACT_CLI_LIB "fibonacci_action_client") # 接頭辞libは不要
 add_library(${ACT_CLI_LIB} SHARED
   src/fibonacci_action_client.cpp
@@ -71,7 +54,7 @@ add_library(${ACT_CLI_LIB} SHARED
 )
 target_include_directories(${ACT_CLI_LIB} PRIVATE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/${PROJECT_NAME}
+  $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
 )
 target_compile_features(${ACT_CLI_LIB}
   PUBLIC c_std_99 cxx_std_17 # Require C99 and C++17
@@ -85,7 +68,7 @@ ament_target_dependencies(${ACT_CLI_LIB}
   "rclcpp_components"
   "fibonacci_msg"
 )
-# クライアントバイナリ
+# アクションクライアントバイナリ
 set(ACT_CLI_BIN "fibonacci_action_client_node")
 rclcpp_components_register_node(${ACT_CLI_LIB}
   PLUGIN "fibonacci::FibonacciActionClient"
@@ -93,7 +76,13 @@ rclcpp_components_register_node(${ACT_CLI_LIB}
 )
 
 install(
-  TARGETS ${ACT_CLI_LIB}
+  DIRECTORY include/
+  DESTINATION include/${PROJECT_NAME}
+)
+
+install(
+  TARGETS ${ACT_SRV_LIB} ${ACT_CLI_LIB}
+  EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
@@ -110,7 +99,6 @@ if(BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
-
 
 # ヘッダファイルのディレクトリ情報を他パッケージが使えるようにCMakeへエクスポート
 ament_export_include_directories(
