@@ -20,7 +20,7 @@ find_package(fibonacci_msg REQUIRED)
 # アクションサーバーライブラリ
 set(ACT_SRV_LIB "fibonacci_action_server") # 接頭辞libは不要
 add_library(${ACT_SRV_LIB} SHARED
-  src/fibonacci_action_server.cpp
+  src/fibonacci/action_server.cpp
   src/fibonacci_action_server_main.cpp
 )
 target_include_directories(${ACT_SRV_LIB} PUBLIC
@@ -49,7 +49,7 @@ rclcpp_components_register_node(${ACT_SRV_LIB}
 # アクションクライアントライブラリ
 set(ACT_CLI_LIB "fibonacci_action_client") # 接頭辞libは不要
 add_library(${ACT_CLI_LIB} SHARED
-  src/fibonacci_action_client.cpp
+  src/fibonacci/action_client.cpp
   src/fibonacci_action_client_main.cpp
 )
 target_include_directories(${ACT_CLI_LIB} PRIVATE
@@ -78,7 +78,7 @@ rclcpp_components_register_node(${ACT_CLI_LIB}
 # サービスサーバーライブラリ
 set(SRV_SRV_LIB "fibonacci_service_server")
 add_library(${SRV_SRV_LIB} SHARED
-  src/fibonacci_service_server.cpp
+  src/fibonacci/service_server.cpp
   src/fibonacci_service_server_main.cpp
 )
 target_include_directories(${SRV_SRV_LIB} PUBLIC

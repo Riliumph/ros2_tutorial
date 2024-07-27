@@ -1,4 +1,4 @@
-#include "fibonacci/fibonacci_action_server.hpp"
+#include "fibonacci/action_server.hpp"
 
 namespace fibonacci {
 

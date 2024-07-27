@@ -1,8 +1,8 @@
-#include "fibonacci/fibonacci_action_client.hpp"
+#include "fibonacci/action_client.hpp"
 // STL
 #include <sstream>
 // original
-#include "fibonacci/fibonacci_action_server.hpp"
+#include "fibonacci/action_server.hpp"
 
 namespace fibonacci {
 
