@@ -4,7 +4,8 @@
 
 ## 参考
 
-- [Creating an action](https://docs.ros.org/en/jazzy/Tutorials/Intermediate/Creating-an-Action.html#creating-an-action)
+- [Writing an action server and client (C++)](https://docs.ros.org/en/jazzy/Tutorials/Intermediate/Writing-an-Action-Server-Client/Cpp.html#writing-an-action-server-and-client-c)
+- [Writing a simple service and client (C++)](https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Cpp-Service-And-Client.html#writing-a-simple-service-and-client-c)
 
 > [「ROS」の基礎とROS 2プログラミングの実践 ⾼瀬 英希(京都⼤学／JSTさきがけ)](http://lab3.kuis.kyoto-u.ac.jp/~takase/ros/4dashing.pdf)  
 > 「ROS 2では，独⾃定義のmsg (srv, action)はノード実装のパッケージとは別にライブラリ化する」とのこと。
@@ -35,10 +36,15 @@ ros_ws/
     ├ include/
     | └ fibonacci_msg/
     |   └ fibonacci_msg/
-    |     └ action/
+    |     ├ action/
+    |     | ├ detail/       # ROSのメッセージの定義ファイル群
+    |     | ├ fibonacci.h   # C用メッセージ代表ヘッダ
+    |     | └ fibonacci.hpp # C++用メッセージ代表ヘッダ
+    |     └ srv/
     |       ├ detail/       # ROSのメッセージの定義ファイル群
     |       ├ fibonacci.h   # C用メッセージ代表ヘッダ
     |       └ fibonacci.hpp # C++用メッセージ代表ヘッダ
+    |
     ├ lib/
     └ share/
 ```
@@ -65,4 +71,9 @@ int32 order
 int32[] sequence
 ---
 int32[] partial_sequence
+--------------------------------
+$ ros2 interface show fibonacci_msg/srv/Fibonacci
+int32 order
+---
+int32[] sequence
 ```
