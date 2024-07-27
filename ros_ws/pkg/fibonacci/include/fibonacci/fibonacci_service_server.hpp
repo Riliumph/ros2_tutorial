@@ -1,0 +1,34 @@
+#ifndef FIBONACCI__FIBONACCI_SERVICE_SERVER_HPP_
+#define FIBONACCI__FIBONACCI_SERVICE_SERVER_HPP_
+// STL
+#include <functional>
+#include <memory>
+#include <thread>
+// ROS2
+#include <rclcpp/rclcpp.hpp>
+// ROS2 automatically created definition
+#include "fibonacci/visibility_control.h"
+#include "fibonacci_msg/srv/fibonacci.hpp"
+
+namespace fibonacci {
+
+class FibonacciServiceServer : public rclcpp::Node
+{
+  using SrvMsg = fibonacci_msg::srv::Fibonacci;
+
+public:
+  static constexpr const char* node_name = "fibonacci_service_server_node";
+  static constexpr const char* server_name = "fibonacci_service_server";
+
+  FIBONACCI_PUBLIC explicit FibonacciServiceServer(
+    const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+
+private:
+  rclcpp::Service<SrvMsg>::SharedPtr service_server_;
+  void execute(const std::shared_ptr<SrvMsg::Request> request,
+               std::shared_ptr<SrvMsg::Response> response);
+};
+
+} // namespace fibonacci
+
+#endif // FIBONACCI__FIBONACCI_SERVICE_SERVER_HPP_
