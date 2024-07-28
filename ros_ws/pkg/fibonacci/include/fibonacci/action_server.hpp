@@ -1,5 +1,5 @@
-#ifndef FIBONACCI__FIBONACCI_ACTION_SERVER_HPP_
-#define FIBONACCI__FIBONACCI_ACTION_SERVER_HPP_
+#ifndef FIBONACCI__ACTION_SERVER_HPP_
+#define FIBONACCI__ACTION_SERVER_HPP_
 // STL
 #include <functional>
 #include <memory>
@@ -15,8 +15,8 @@ namespace fibonacci {
 
 class FibonacciActionServer : public rclcpp::Node
 {
-  using ActMsg = fibonacci_msg::action::Fibonacci;
-  using GoalHandle = rclcpp_action::ServerGoalHandle<ActMsg>;
+  using Msg = fibonacci_msg::action::Fibonacci;
+  using GoalHandle = rclcpp_action::ServerGoalHandle<Msg>;
 
 public:
   static constexpr const char* node_name = "fibonacci_action_server_node";
@@ -26,11 +26,11 @@ public:
     const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  rclcpp_action::Server<ActMsg>::SharedPtr action_server_;
+  rclcpp_action::Server<Msg>::SharedPtr action_server_;
 
   void execute(const std::shared_ptr<GoalHandle> goal_handle);
 };
 
 } // namespace fibonacci
 
-#endif // FIBONACCI__FIBONACCI_ACTION_SERVER_HPP_
+#endif // FIBONACCI__ACTION_SERVER_HPP_

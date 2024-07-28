@@ -13,16 +13,16 @@ FibonacciActionClient::FibonacciActionClient(const rclcpp::NodeOptions& options)
   , dest_server_name(FibonacciActionServer::server_name)
 {
   RCLCPP_DEBUG(this->get_logger(), "Establish Client");
-  client_ptr_ = rclcpp_action::create_client<ActMsg>(this, dest_server_name);
+  client_ptr_ = rclcpp_action::create_client<Msg>(this, dest_server_name);
 
-  auto timer_callback_lambda = [this]() { return this->send_goal(); };
+  auto timer_callback_lambda = [this]() { return this->send(); };
   timer_ = this->create_wall_timer(std::chrono::milliseconds(500),
                                    timer_callback_lambda);
 }
 
 /// @brief 実行関数
 void
-FibonacciActionClient::send_goal()
+FibonacciActionClient::send()
 {
   this->timer_->cancel();
 
@@ -32,12 +32,12 @@ FibonacciActionClient::send_goal()
     rclcpp::shutdown();
   }
 
-  auto goal_msg = ActMsg::Goal();
+  auto goal_msg = Msg::Goal();
   goal_msg.order = 10;
 
   RCLCPP_INFO(this->get_logger(), "Sending goal");
 
-  auto send_goal_options = rclcpp_action::Client<ActMsg>::SendGoalOptions();
+  auto send_goal_options = rclcpp_action::Client<Msg>::SendGoalOptions();
   send_goal_options.goal_response_callback =
     [this](const GoalHandle::SharedPtr& goal_handle) {
       if (!goal_handle) {
@@ -50,7 +50,7 @@ FibonacciActionClient::send_goal()
 
   send_goal_options.feedback_callback =
     [this](GoalHandle::SharedPtr,
-           const std::shared_ptr<const ActMsg::Feedback> feedback) {
+           const std::shared_ptr<const Msg::Feedback> feedback) {
       std::stringstream ss;
       ss << "Next number in sequence received: ";
       for (auto number : feedback->partial_sequence) {

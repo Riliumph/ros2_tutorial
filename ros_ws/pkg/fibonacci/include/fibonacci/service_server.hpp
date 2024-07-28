@@ -1,5 +1,5 @@
-#ifndef FIBONACCI__FIBONACCI_SERVICE_SERVER_HPP_
-#define FIBONACCI__FIBONACCI_SERVICE_SERVER_HPP_
+#ifndef FIBONACCI__SERVICE_SERVER_HPP_
+#define FIBONACCI__SERVICE_SERVER_HPP_
 // STL
 #include <functional>
 #include <memory>
@@ -14,7 +14,7 @@ namespace fibonacci {
 
 class FibonacciServiceServer : public rclcpp::Node
 {
-  using SrvMsg = fibonacci_msg::srv::Fibonacci;
+  using Msg = fibonacci_msg::srv::Fibonacci;
 
 public:
   static constexpr const char* node_name = "fibonacci_service_server_node";
@@ -24,11 +24,11 @@ public:
     const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  rclcpp::Service<SrvMsg>::SharedPtr service_server_;
-  void execute(const std::shared_ptr<SrvMsg::Request> request,
-               std::shared_ptr<SrvMsg::Response> response);
+  rclcpp::Service<Msg>::SharedPtr service_server_;
+  void execute(const std::shared_ptr<Msg::Request> request,
+               std::shared_ptr<Msg::Response> response);
 };
 
 } // namespace fibonacci
 
-#endif // FIBONACCI__FIBONACCI_SERVICE_SERVER_HPP_
+#endif // FIBONACCI__SERVICE_SERVER_HPP_
