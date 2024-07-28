@@ -24,7 +24,8 @@
             "configurationProvider": "ms-vscode.makefile-tools",
             "browse": {
                 // TagParser用設定
-            }
+            },
+            "compileCommands": "${workspaceFolder}/ros_ws/build/compile_commands.json",
         }
     ],
     "version": 4
