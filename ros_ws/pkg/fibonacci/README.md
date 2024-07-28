@@ -61,10 +61,25 @@ ros_ws/
     └ share/
 ```
 
-## アクション通信実行方法
+## 通信実行方法
+
+### サービス通信
 
 ```console
-$ ros2 run fibonacci fibonacci_action_server_node
+$ ros2 run fibonacci fibonacci_server_component_node
+```
+
+```console
+$ ros2 run fibonacci fibonacci_service_client_node
+[INFO] [1722153225.881993842] [fibonacci_service_client_node]: Sending request
+```
+
+### アクション通信
+
+> サーバー側はコンポーネント実装のため同じバイナリ
+
+```console
+$ ros2 run fibonacci fibonacci_server_component_node
 [INFO] [1722048831.388800882] [fibonacci_action_server_node]: Received goal request with order 10
 [INFO] [1722048831.389373052] [fibonacci_action_server_node]: Executing goal
 [INFO] [1722048831.389648572] [fibonacci_action_server_node]: Publish feedback
