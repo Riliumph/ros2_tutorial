@@ -1,4 +1,4 @@
-#include "fibonacci/fibonacci_action_server.hpp"
+#include "fibonacci/action_server.hpp"
 
 namespace fibonacci {
 
@@ -75,3 +75,6 @@ FibonacciActionServer::execute(const std::shared_ptr<GoalHandle> goal_handle)
 };
 
 } // namespace fibonacci
+
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(fibonacci::FibonacciActionServer)

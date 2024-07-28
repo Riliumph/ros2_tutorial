@@ -1,8 +1,8 @@
-#include "fibonacci/fibonacci_action_client.hpp"
+#include "fibonacci/action_client.hpp"
 // STL
 #include <sstream>
 // original
-#include "fibonacci/fibonacci_action_server.hpp"
+#include "fibonacci/action_server.hpp"
 
 namespace fibonacci {
 
@@ -86,3 +86,6 @@ FibonacciActionClient::send_goal()
 };
 
 } // namespace fibonacci
+
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(fibonacci::FibonacciActionClient)
