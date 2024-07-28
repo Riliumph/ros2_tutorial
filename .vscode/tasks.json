@@ -6,7 +6,9 @@
 			"label": "debug",
 			"command": "colcon",
 			"args": [
-				"build"
+				"build",
+				"--cmake-args",
+				"-DCMAKE_BUILD_TYPE=Debug"
 			],
 			"options": {},
 			"group": "build",

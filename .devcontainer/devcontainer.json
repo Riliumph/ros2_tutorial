@@ -47,7 +47,8 @@
 				"richie5um2.vscode-sort-json",
 				"eamodio.gitlens",
 				"mhutchie.git-graph",
-				"donjayamanne.githistory"
+				"donjayamanne.githistory",
+				"ms-iot.vscode-ros"
 			]
 		}
 	}
