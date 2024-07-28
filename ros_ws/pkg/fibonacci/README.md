@@ -48,15 +48,16 @@ ros_ws/
     ├ include/
     | └ fibonacci/
     |   └ fibonacci/
-    |     ├ fibonacci_action_client.hpp
-    |     ├ fibonacci_action_server.hpp
+    |     ├ action_client.hpp
+    |     ├ action_server.hpp
+    |     ├ service_server.hpp
     |     └ visibility_control.h
     ├ lib/
     | ├ fibonacci/
     | | ├ fibonacci_action_client_node*
-    | | └ fibonacci_action_server_node*
+    | | └ fibonacci_server_component_node*
     | ├ libfibonacci_action_client.so
-    | └ libfibonacci_action_server.so
+    | └ libfibonacci_server_component.so
     └ share/
 ```
 
