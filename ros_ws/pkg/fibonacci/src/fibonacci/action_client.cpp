@@ -86,3 +86,6 @@ FibonacciActionClient::send_goal()
 };
 
 } // namespace fibonacci
+
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(fibonacci::FibonacciActionClient)

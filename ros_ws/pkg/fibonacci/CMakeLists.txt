@@ -18,7 +18,7 @@ find_package(rclcpp_components REQUIRED)
 find_package(fibonacci_msg REQUIRED)
 
 # ----- libraries -----
-# アクションサーバーライブラリ
+# サーバーライブラリ
 set(SRV_LIB "fibonacci_server_component") # 接頭辞libは不要
 add_library(${SRV_LIB} SHARED
   src/fibonacci/action_server.cpp
@@ -47,7 +47,6 @@ ament_target_dependencies(${SRV_LIB}
 set(ACT_CLI_LIB "fibonacci_action_client") # 接頭辞libは不要
 add_library(${ACT_CLI_LIB} SHARED
   src/fibonacci/action_client.cpp
-  src/fibonacci_action_client_main.cpp
 )
 target_include_directories(${ACT_CLI_LIB} PRIVATE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -66,13 +65,34 @@ ament_target_dependencies(${ACT_CLI_LIB}
   "fibonacci_msg"
 )
 
+# サービスクライアントライブラリ
+set(SRV_CLI_LIB "fibonacci_service_client") # 接頭辞libは不要
+add_library(${SRV_CLI_LIB} SHARED
+  src/fibonacci/service_client.cpp
+)
+target_include_directories(${SRV_CLI_LIB} PRIVATE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
+)
+target_compile_features(${SRV_CLI_LIB}
+  PUBLIC c_std_99 cxx_std_17 # Require C99 and C++17
+)
+target_compile_definitions(${SRV_CLI_LIB}
+  PRIVATE "FIBONACCI_BUILDING_LIBRARY"
+)
+ament_target_dependencies(${SRV_CLI_LIB}
+  "rclcpp"
+  "rclcpp_components"
+  "fibonacci_msg"
+)
+
 install(
   DIRECTORY include/
   DESTINATION include/${PROJECT_NAME}
 )
 
 install(
-  TARGETS ${SRV_LIB} ${ACT_CLI_LIB}
+  TARGETS ${SRV_LIB} ${ACT_CLI_LIB} ${SRV_CLI_LIB}
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -107,6 +127,37 @@ rclcpp_components_register_node(${ACT_CLI_LIB}
   PLUGIN "fibonacci::FibonacciActionClient"
   EXECUTABLE ${ACT_CLI_BIN}
 )
+
+# サービスクライアントバイナリ
+set(SRV_CLI_BIN "fibonacci_service_client_node")
+# rclcpp::spinとrclcpp::spin_until_future_completeの多重spinが発生するためNG
+# 詳細はwikiへ
+# rclcpp_components_register_node(${SRV_CLI_LIB}
+#   PLUGIN "fibonacci::FibonacciServiceClient"
+#   EXECUTABLE ${SRV_CLI_BIN}
+# )
+add_executable(${SRV_CLI_BIN}
+  src/service_client_main.cpp
+)
+target_link_libraries(${SRV_CLI_BIN}
+  ${SRV_CLI_LIB}
+)
+target_include_directories(${SRV_CLI_BIN} PRIVATE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
+)
+# 別パッケージのライブラリはこちらに書く
+ament_target_dependencies(${SRV_CLI_BIN}
+  "rclcpp"
+  "rclcpp_action"
+  "rclcpp_components"
+  "fibonacci_msg"
+)
+install(
+  TARGETS ${SRV_CLI_BIN}
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
