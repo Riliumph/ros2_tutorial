@@ -1,5 +1,5 @@
-#ifndef FIBONACCI__FIBONACCI_SERVICE_CLIENT_HPP_
-#define FIBONACCI__FIBONACCI_SERVICE_CLIENT_HPP_
+#ifndef FIBONACCI__SERVICE_CLIENT_HPP_
+#define FIBONACCI__SERVICE_CLIENT_HPP_
 // STL
 #include <functional>
 #include <memory>
@@ -32,4 +32,4 @@ private:
 
 } // namespace fibonacci
 
-#endif // FIBONACCI__FIBONACCI_SERVICE_CLIENT_HPP_
+#endif // FIBONACCI__SERVICE_CLIENT_HPP_

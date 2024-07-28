@@ -1,5 +1,5 @@
-#ifndef FIBONACCI__FIBONACCI_ACTION_CLIENT_HPP_
-#define FIBONACCI__FIBONACCI_ACTION_CLIENT_HPP_
+#ifndef FIBONACCI__ACTION_CLIENT_HPP_
+#define FIBONACCI__ACTION_CLIENT_HPP_
 // STL
 #include <functional>
 #include <memory>
@@ -15,8 +15,8 @@ namespace fibonacci {
 
 class FibonacciActionClient : public rclcpp::Node
 {
-  using ActMsg = fibonacci_msg::action::Fibonacci;
-  using GoalHandle = rclcpp_action::ClientGoalHandle<ActMsg>;
+  using Msg = fibonacci_msg::action::Fibonacci;
+  using GoalHandle = rclcpp_action::ClientGoalHandle<Msg>;
 
 public:
   static constexpr const char* node_name = "fibonacci_action_client_node";
@@ -24,14 +24,14 @@ public:
 
   FIBONACCI_PUBLIC explicit FibonacciActionClient(
     const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
-  void send_goal();
+  void send();
 
 private:
-  rclcpp_action::Client<ActMsg>::SharedPtr client_ptr_;
+  rclcpp_action::Client<Msg>::SharedPtr client_ptr_;
   rclcpp::TimerBase::SharedPtr timer_;
   std::string dest_server_name;
 };
 
 } // namespace fibonacci
 
-#endif // FIBONACCI__FIBONACCI_ACTION_CLIENT_HPP_
+#endif // FIBONACCI__ACTION_CLIENT_HPP_

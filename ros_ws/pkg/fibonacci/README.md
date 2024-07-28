@@ -19,14 +19,40 @@ $ ros2 pkg create fibonacci --library-name fibonacci_action_server --license MIT
 
 ```console
 $ cd ~/ros_ws
-$ colcon build --cmake-args -DCMAKE_BUILD_TYPE=Debug --packages-select fibonacci
+$ colcon build --cmake-args -DCMAKE_BUILD_TYPE=Debug
 ```
+
+#### GDBによるデバッグ（[launch編]((https://github.com/ms-iot/vscode-ros/blob/master/doc/debug-support.md#launch))）
+
+#### GDBによるデバッグ（[attach編](https://github.com/ms-iot/vscode-ros/blob/master/doc/debug-support.md#attaching-to-a-c-node)）
+
+サーバーをデバッグすると仮定して、サーバープログラムを実行しておく。
+
+```console
+$ ros2 launch server_launch.yaml
+```
+
+VSCodeのデバッグ画面から`launch.json`で定義されている`ROS: Attach`を選択する。  
+F5や実行ボタンからデバッグを実行すると、以下の選択を迫られる。
+
+- C++
+- Python
+
+C++を選択すると、アタッチするプロセスを選択する画面になる。  
+fibonacciなどで検索し、アタッチしたいプロセス（`component_container`）を選択するとGDBが繋がる。  
+`FibonacciActionServer::execute`などにブレイクポイントを張り、以下のコマンドでクライアントを起動して通信する。
+
+```console
+$ ros2 run fibonacci fibonacci_action_client_node
+```
+
+ブレイクされれば完了。
 
 ### リリースビルド
 
 ```console
 $ cd ~/ros_ws
-$ colcon build --packages-select fibonacci_action
+$ colcon build
 ```
 
 ### 成果物の確認

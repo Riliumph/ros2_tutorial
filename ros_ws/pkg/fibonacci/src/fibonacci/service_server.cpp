@@ -10,19 +10,19 @@ FibonacciServiceServer::FibonacciServiceServer(
 {
   RCLCPP_DEBUG(this->get_logger(), "Establish Server");
   service_server_ =
-    this->create_service<SrvMsg>(server_name,
-                                 std::bind(&FibonacciServiceServer::execute,
-                                           this,
-                                           std::placeholders::_1,
-                                           std::placeholders::_2));
+    this->create_service<Msg>(server_name,
+                              std::bind(&FibonacciServiceServer::execute,
+                                        this,
+                                        std::placeholders::_1,
+                                        std::placeholders::_2));
 };
 
 /// @brief サービス実行関数
 /// @param request リクエスト情報
 /// @param response レスポンス情報
 void
-FibonacciServiceServer::execute(const std::shared_ptr<SrvMsg::Request> request,
-                                std::shared_ptr<SrvMsg::Response> response)
+FibonacciServiceServer::execute(const std::shared_ptr<Msg::Request> request,
+                                std::shared_ptr<Msg::Response> response)
 {
   RCLCPP_INFO(this->get_logger(), "Executing Fibonacci Service");
 

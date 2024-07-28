@@ -1,0 +1,15 @@
+launch:
+  - node_container:
+      pkg: "rclcpp_components"
+      exec: "component_container"
+      name: "fibonacci_server_composable_node"
+      namespace: ""
+      composable_node:
+        - pkg: "fibonacci"
+          # rclcpp_components_register_nodesで登録したクラス名を指定する
+          plugin: "fibonacci::FibonacciActionServer"
+          name: "fibonacci_action_server"
+        - pkg: "fibonacci"
+          plugin: "fibonacci::FibonacciServiceServer"
+          name: "fibonacci_service_server"
+
