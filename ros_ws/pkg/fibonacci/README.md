@@ -2,29 +2,17 @@
 
 フィボナッチ数を計算する機能。
 
-## マイルストーン
-
-アクション通信のサポート実施。  
-今後、サービス通信をサポート予定。
-
 ## パッケージの作成
 
 ```console
-$ ros2 pkg create fibonacci --library-name fibonacci_action_server --license MIT
+$ ros2 pkg create fibonacci --license MIT
 ```
 
-## ビルド方法
+## デバッグ方法
 
-### デバッグビルド
+### [launch編]((https://github.com/ms-iot/vscode-ros/blob/master/doc/debug-support.md#launch))
 
-```console
-$ cd ~/ros_ws
-$ colcon build --cmake-args -DCMAKE_BUILD_TYPE=Debug
-```
-
-#### GDBによるデバッグ（[launch編]((https://github.com/ms-iot/vscode-ros/blob/master/doc/debug-support.md#launch))）
-
-#### GDBによるデバッグ（[attach編](https://github.com/ms-iot/vscode-ros/blob/master/doc/debug-support.md#attaching-to-a-c-node)）
+### [attach編](https://github.com/ms-iot/vscode-ros/blob/master/doc/debug-support.md#attaching-to-a-c-node)
 
 サーバーをデバッグすると仮定して、サーバープログラムを実行しておく。
 
@@ -39,7 +27,7 @@ F5や実行ボタンからデバッグを実行すると、以下の選択を迫
 - Python
 
 C++を選択すると、アタッチするプロセスを選択する画面になる。  
-fibonacciなどで検索し、アタッチしたいプロセス（`component_container`）を選択するとGDBが繋がる。  
+`fibonacci`などで検索し、アタッチしたいプロセス（`component_container`）を選択するとGDBが繋がる。  
 `FibonacciActionServer::execute`などにブレイクポイントを張り、以下のコマンドでクライアントを起動して通信する。
 
 ```console
@@ -47,13 +35,6 @@ $ ros2 run fibonacci fibonacci_action_client_node
 ```
 
 ブレイクされれば完了。
-
-### リリースビルド
-
-```console
-$ cd ~/ros_ws
-$ colcon build
-```
 
 ### 成果物の確認
 
@@ -64,10 +45,13 @@ $ colcon build
 ros_ws/
 ├ build/
 | └ fibonacci/
-|   ├ fibonacci_action_client_node
-|   ├ fibonacci_action_server_node
+|   ├ fibonacci_action_client_node*
+|   ├ fibonacci_service_client_node*
+|   ├ fibonacci_server_component_node*
 |   ├ libfibonacci_action_client.so
-|   └ libfibonacci_action_server.so
+|   ├ libfibonacci_action_server.so
+|   ├ libfibonacci_service_client.so
+|   └ libfibonacci_service_server.so
 |
 └ install/
   └ fibonacci/
@@ -76,14 +60,18 @@ ros_ws/
     |   └ fibonacci/
     |     ├ action_client.hpp
     |     ├ action_server.hpp
+    |     ├ service_client.hpp
     |     ├ service_server.hpp
     |     └ visibility_control.h
     ├ lib/
     | ├ fibonacci/
     | | ├ fibonacci_action_client_node*
+    | | ├ fibonacci_service_client_node*
     | | └ fibonacci_server_component_node*
     | ├ libfibonacci_action_client.so
-    | └ libfibonacci_server_component.so
+    | ├ libfibonacci_action_server.so
+    | ├ libfibonacci_service_client.so
+    | └ libfibonacci_service_server.so
     └ share/
 ```
 

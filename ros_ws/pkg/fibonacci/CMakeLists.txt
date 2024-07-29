@@ -139,10 +139,6 @@ ament_target_dependencies(${SRV_BIN}
   "rclcpp_components"
   "fibonacci_msg"
 )
-install(
-  TARGETS ${SRV_BIN}
-  DESTINATION lib/${PROJECT_NAME}
-)
 
 # アクションクライアントバイナリ
 set(ACT_CLI_BIN "fibonacci_action_client_node")
@@ -177,7 +173,7 @@ ament_target_dependencies(${SRV_CLI_BIN}
   "fibonacci_msg"
 )
 install(
-  TARGETS ${SRV_CLI_BIN}
+  TARGETS ${SRV_BIN} ${SRV_CLI_BIN}
   DESTINATION lib/${PROJECT_NAME}
 )
 
@@ -193,22 +189,19 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-# ヘッダファイルのディレクトリ情報を他パッケージが使えるようにCMakeへエクスポート
 ament_export_include_directories(
   "include/${PROJECT_NAME}"
 )
-# ライブラリのファイル情報を他パッケージが使えるようにCMakeへエクスポート
+
 ament_export_libraries(
   ${SRV_SRV_LIB}
   ${ACT_SRV_LIB}
   ${SRV_CLI_LIB}
   ${ACT_CLI_LIB}
 )
-# パッケージの情報を他パッケージが使えるようにCMakeへエクスポート
+
 ament_export_targets(
   export_${PROJECT_NAME}
 )
 
-# colconエコシステムのresource indexにパッケージ情報を登録
-# ROS2コマンドがパッケージを認識できるようになる
 ament_package()
