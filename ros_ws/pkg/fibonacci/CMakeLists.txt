@@ -146,7 +146,7 @@ add_executable(${ACT_CLI_BIN}
   src/action_client_main.cpp
 )
 target_link_libraries(${ACT_CLI_BIN}
-  ${SRV_CLI_LIB}
+  ${ACT_CLI_LIB}
 )
 target_include_directories(${ACT_CLI_BIN} PRIVATE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

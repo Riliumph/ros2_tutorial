@@ -25,7 +25,7 @@ public:
 
   FIBONACCI_PUBLIC explicit FibonacciActionClient(
     const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
-  void send();
+  void send(Msg::Goal goal);
 
 private:
   rclcpp_action::Client<Msg>::SharedPtr client_ptr_;

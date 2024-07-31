@@ -15,25 +15,26 @@ FibonacciActionClient::FibonacciActionClient(const rclcpp::NodeOptions& options)
   RCLCPP_DEBUG(this->get_logger(), "Establish Client");
   client_ptr_ = rclcpp_action::create_client<Msg>(this, dest_server_name);
 
-  // auto timer_callback_lambda = [this]() { return this->send(); };
-  // timer_ = this->create_wall_timer(std::chrono::milliseconds(500),
-  //                                  timer_callback_lambda);
+  auto timer_callback_lambda = [this]() {
+    auto goal = Msg::Goal();
+    goal.order = 10;
+    return this->send(goal);
+  };
+  timer_ = this->create_wall_timer(std::chrono::milliseconds(500),
+                                   timer_callback_lambda);
 }
 
 /// @brief 実行関数
 void
-FibonacciActionClient::send()
+FibonacciActionClient::send(Msg::Goal goal)
 {
-  // this->timer_->cancel();
+  this->timer_->cancel();
 
   if (!client_ptr_->wait_for_action_server()) {
     RCLCPP_ERROR(this->get_logger(),
                  "Action server not available after waiting");
     rclcpp::shutdown();
   }
-
-  auto goal_msg = Msg::Goal();
-  goal_msg.order = 10;
 
   RCLCPP_INFO(this->get_logger(), "Sending goal");
 
@@ -82,7 +83,7 @@ FibonacciActionClient::send()
       RCLCPP_INFO(this->get_logger(), ss.str().c_str());
       rclcpp::shutdown();
     };
-  this->client_ptr_->async_send_goal(goal_msg, send_goal_options);
+  this->client_ptr_->async_send_goal(goal, send_goal_options);
 };
 
 } // namespace fibonacci
