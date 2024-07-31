@@ -15,16 +15,16 @@ FibonacciActionClient::FibonacciActionClient(const rclcpp::NodeOptions& options)
   RCLCPP_DEBUG(this->get_logger(), "Establish Client");
   client_ptr_ = rclcpp_action::create_client<Msg>(this, dest_server_name);
 
-  auto timer_callback_lambda = [this]() { return this->send(); };
-  timer_ = this->create_wall_timer(std::chrono::milliseconds(500),
-                                   timer_callback_lambda);
+  // auto timer_callback_lambda = [this]() { return this->send(); };
+  // timer_ = this->create_wall_timer(std::chrono::milliseconds(500),
+  //                                  timer_callback_lambda);
 }
 
 /// @brief 実行関数
 void
 FibonacciActionClient::send()
 {
-  this->timer_->cancel();
+  // this->timer_->cancel();
 
   if (!client_ptr_->wait_for_action_server()) {
     RCLCPP_ERROR(this->get_logger(),
