@@ -33,7 +33,7 @@ FibonacciActionClient::send(Msg::Goal goal)
   if (!client_ptr_->wait_for_action_server()) {
     RCLCPP_ERROR(this->get_logger(),
                  "Action server not available after waiting");
-    rclcpp::shutdown();
+    rclcpp::shutdown(); // rclcpp::spinの解除
   }
 
   RCLCPP_INFO(this->get_logger(), "Sending goal");
@@ -81,7 +81,7 @@ FibonacciActionClient::send(Msg::Goal goal)
         ss << number << " ";
       }
       RCLCPP_INFO(this->get_logger(), ss.str().c_str());
-      rclcpp::shutdown();
+      rclcpp::shutdown(); // rclcpp::spinの解除
     };
   this->client_ptr_->async_send_goal(goal, send_goal_options);
 };

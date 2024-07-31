@@ -12,10 +12,8 @@ main(int argc, char** argv)
   rclcpp::init(argc, argv);
   pid_t pid = getpid();
   std::cout << "プロセスID: " << pid << std::endl;
-  auto cli = std::make_unique<fibonacci::FibonacciActionClient>();
-  auto msg = fibonacci::FibonacciActionClient::Msg::Goal();
-  msg.order = 10;
-  auto result = cli->send(msg);
+  auto cli = std::make_shared<fibonacci::FibonacciActionClient>();
+  rclcpp::spin(cli); // callback event生成
   rclcpp::shutdown();
   return 0;
 }
