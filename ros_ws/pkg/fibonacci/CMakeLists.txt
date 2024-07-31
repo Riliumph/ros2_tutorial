@@ -142,11 +142,23 @@ ament_target_dependencies(${SRV_BIN}
 
 # アクションクライアントバイナリ
 set(ACT_CLI_BIN "fibonacci_action_client_node")
-rclcpp_components_register_node(${ACT_CLI_LIB}
-  PLUGIN "fibonacci::FibonacciActionClient"
-  EXECUTABLE ${ACT_CLI_BIN}
+add_executable(${ACT_CLI_BIN}
+  src/action_client_main.cpp
 )
-
+target_link_libraries(${ACT_CLI_BIN}
+  ${ACT_CLI_LIB}
+)
+target_include_directories(${ACT_CLI_BIN} PRIVATE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
+)
+# 別パッケージのライブラリはこちらに書く
+ament_target_dependencies(${ACT_CLI_BIN}
+  "rclcpp"
+  "rclcpp_action"
+  "rclcpp_components"
+  "fibonacci_msg"
+)
 # サービスクライアントバイナリ
 set(SRV_CLI_BIN "fibonacci_service_client_node")
 # rclcpp::spinとrclcpp::spin_until_future_completeの多重spinが発生するためNG
@@ -173,7 +185,7 @@ ament_target_dependencies(${SRV_CLI_BIN}
   "fibonacci_msg"
 )
 install(
-  TARGETS ${SRV_BIN} ${SRV_CLI_BIN}
+  TARGETS ${SRV_BIN} ${SRV_CLI_BIN} ${ACT_CLI_BIN}
   DESTINATION lib/${PROJECT_NAME}
 )
 

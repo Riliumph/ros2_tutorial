@@ -15,6 +15,7 @@ namespace fibonacci {
 
 class FibonacciActionClient : public rclcpp::Node
 {
+public:
   using Msg = fibonacci_msg::action::Fibonacci;
   using GoalHandle = rclcpp_action::ClientGoalHandle<Msg>;
 
@@ -24,7 +25,7 @@ public:
 
   FIBONACCI_PUBLIC explicit FibonacciActionClient(
     const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
-  void send();
+  Msg::Result::SharedPtr send(Msg::Goal goal);
 
 private:
   rclcpp_action::Client<Msg>::SharedPtr client_ptr_;

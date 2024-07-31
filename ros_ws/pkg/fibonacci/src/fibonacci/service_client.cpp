@@ -37,7 +37,7 @@ FibonacciServiceClient::send()
   request->order = 10;
 
   RCLCPP_INFO(this->get_logger(), "Sending request");
-#if 0
+#if 1
   auto result = client_ptr_->async_send_request(request);
   // TODO: Segmentation faultの発生を確認
   // Attention: rclcpp::spinとの多重spin発生に気を付ける
