@@ -13,7 +13,7 @@ FibonacciActionClient::FibonacciActionClient(const rclcpp::NodeOptions& options)
   , dest_server_name(FibonacciActionServer::server_name)
 {
   RCLCPP_DEBUG(this->get_logger(), "Establish Client");
-  client_ptr_ = rclcpp_action::create_client<Msg>(this, dest_server_name);
+  client = rclcpp_action::create_client<Msg>(this, dest_server_name);
 
   // auto timer_callback_lambda = [this]() {
   //   auto goal = Msg::Goal();
@@ -30,7 +30,7 @@ FibonacciActionClient::send(Msg::Goal goal)
 {
   // this->timer_->cancel();
 
-  if (!client_ptr_->wait_for_action_server()) {
+  if (!client->wait_for_action_server()) {
     RCLCPP_ERROR(this->get_logger(),
                  "Action server not available after waiting");
     rclcpp::shutdown(); // rclcpp::spinの解除
@@ -50,8 +50,7 @@ FibonacciActionClient::send(Msg::Goal goal)
       RCLCPP_INFO(this->get_logger(), ss.str().c_str());
     };
   // アクセプト待ち
-  auto goal_handle_future =
-    this->client_ptr_->async_send_goal(goal, send_options);
+  auto goal_handle_future = this->client->async_send_goal(goal, send_options);
   auto accepted = rclcpp::spin_until_future_complete(
     this->get_node_base_interface(), goal_handle_future);
   if (accepted != rclcpp::FutureReturnCode::SUCCESS) {
@@ -66,7 +65,7 @@ FibonacciActionClient::send(Msg::Goal goal)
   }
 
   RCLCPP_INFO(this->get_logger(), "wait for result from server");
-  auto result_future = client_ptr_->async_get_result(goal_handle);
+  auto result_future = client->async_get_result(goal_handle);
   auto response = rclcpp::spin_until_future_complete(
     this->get_node_base_interface(), result_future);
   if (response != rclcpp::FutureReturnCode::SUCCESS) {

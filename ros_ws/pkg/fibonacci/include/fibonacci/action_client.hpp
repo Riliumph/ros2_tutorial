@@ -28,7 +28,7 @@ public:
   Msg::Result::SharedPtr send(Msg::Goal goal);
 
 private:
-  rclcpp_action::Client<Msg>::SharedPtr client_ptr_;
+  rclcpp_action::Client<Msg>::SharedPtr client;
   rclcpp::TimerBase::SharedPtr timer_;
   std::string dest_server_name;
 };

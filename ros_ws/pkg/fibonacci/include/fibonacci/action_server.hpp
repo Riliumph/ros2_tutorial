@@ -26,8 +26,7 @@ public:
     const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  rclcpp_action::Server<Msg>::SharedPtr action_server_;
-
+  rclcpp_action::Server<Msg>::SharedPtr server;
   void execute(const std::shared_ptr<GoalHandle> goal_handle);
 };
 

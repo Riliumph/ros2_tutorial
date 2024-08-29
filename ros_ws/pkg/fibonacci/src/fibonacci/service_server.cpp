@@ -9,12 +9,11 @@ FibonacciServiceServer::FibonacciServiceServer(
   : Node(node_name, options)
 {
   RCLCPP_DEBUG(this->get_logger(), "Establish Server");
-  service_server_ =
-    this->create_service<Msg>(server_name,
-                              std::bind(&FibonacciServiceServer::execute,
-                                        this,
-                                        std::placeholders::_1,
-                                        std::placeholders::_2));
+  server = this->create_service<Msg>(server_name,
+                                     std::bind(&FibonacciServiceServer::execute,
+                                               this,
+                                               std::placeholders::_1,
+                                               std::placeholders::_2));
 };
 
 /// @brief サービス実行関数

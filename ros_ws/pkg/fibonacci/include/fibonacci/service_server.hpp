@@ -24,7 +24,7 @@ public:
     const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  rclcpp::Service<Msg>::SharedPtr service_server_;
+  rclcpp::Service<Msg>::SharedPtr server;
   void execute(const std::shared_ptr<Msg::Request> request,
                std::shared_ptr<Msg::Response> response);
 };

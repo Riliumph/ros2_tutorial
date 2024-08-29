@@ -31,7 +31,7 @@ FibonacciActionServer::FibonacciActionServer(const rclcpp::NodeOptions& options)
     std::thread{ execute_in_thread }.detach();
   };
 
-  action_server_ = rclcpp_action::create_server<Msg>(
+  server = rclcpp_action::create_server<Msg>(
     this, server_name, goal_handler, cancel_handler, handle_accepted);
 }
 

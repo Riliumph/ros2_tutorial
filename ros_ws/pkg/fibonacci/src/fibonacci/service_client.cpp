@@ -14,7 +14,7 @@ FibonacciServiceClient::FibonacciServiceClient(
   , dest_server_name(FibonacciServiceServer::server_name)
 {
   RCLCPP_DEBUG(this->get_logger(), "Establish Service Client");
-  client_ptr_ = this->create_client<Msg>(dest_server_name);
+  client = this->create_client<Msg>(dest_server_name);
 
   auto timer_callback_lambda = [this]() { return this->send(); };
   timer_ = this->create_wall_timer(std::chrono::milliseconds(500),
@@ -27,7 +27,7 @@ FibonacciServiceClient::send()
 {
   this->timer_->cancel();
 
-  if (!client_ptr_->wait_for_service()) {
+  if (!client->wait_for_service()) {
     RCLCPP_ERROR(this->get_logger(),
                  "Service server not available after waiting");
     rclcpp::shutdown();
@@ -38,7 +38,7 @@ FibonacciServiceClient::send()
 
   RCLCPP_INFO(this->get_logger(), "Sending request");
 #if 1
-  auto result = client_ptr_->async_send_request(request);
+  auto result = client->async_send_request(request);
   // TODO: Segmentation faultの発生を確認
   // Attention: rclcpp::spinとの多重spin発生に気を付ける
   auto return_code =
@@ -56,7 +56,7 @@ FibonacciServiceClient::send()
                  "Failed to call service add_two_ints");
   }
 #else
-  auto result = client_ptr_->async_send_request(
+  auto result = client->async_send_request(
     request, [this](rclcpp::Client<Msg>::SharedFuture future) {
       std::stringstream ss;
       ss << "Result received: ";
