@@ -122,24 +122,6 @@ install(
 )
 
 # ----- binaries -----
-# サーバーバイナリ
-set(SRV_BIN "fibonacci_server_component_node")
-add_executable(${SRV_BIN}
-  src/server_component.cpp
-)
-# 同一パッケージのライブラリはこちらに書く
-target_link_libraries(${SRV_BIN}
-  ${SRV_SRV_LIB}
-  ${ACT_SRV_LIB}
-)
-# 別パッケージのライブラリはこちらに書く
-ament_target_dependencies(${SRV_BIN}
-  "rclcpp"
-  "rclcpp_action"
-  "rclcpp_components"
-  "fibonacci_msg"
-)
-
 # アクションクライアントバイナリ
 set(ACT_CLI_BIN "fibonacci_action_client_node")
 add_executable(${ACT_CLI_BIN}
@@ -152,7 +134,6 @@ target_include_directories(${ACT_CLI_BIN} PRIVATE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
 )
-# 別パッケージのライブラリはこちらに書く
 ament_target_dependencies(${ACT_CLI_BIN}
   "rclcpp"
   "rclcpp_action"
@@ -185,7 +166,7 @@ ament_target_dependencies(${SRV_CLI_BIN}
   "fibonacci_msg"
 )
 install(
-  TARGETS ${SRV_BIN} ${SRV_CLI_BIN} ${ACT_CLI_BIN}
+  TARGETS ${SRV_CLI_BIN} ${ACT_CLI_BIN}
   DESTINATION lib/${PROJECT_NAME}
 )
 
