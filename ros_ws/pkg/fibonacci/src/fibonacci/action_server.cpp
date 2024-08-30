@@ -2,6 +2,8 @@
 // STL
 #include <functional>
 #include <thread>
+// original
+#include "fibonacci/action_operator_io.hpp"
 
 namespace fibonacci {
 /// @brief コンストラクタ
@@ -45,7 +47,7 @@ FibonacciActionServer::execute(const std::shared_ptr<GoalHandle> request)
     sequence.push_back(sequence[i] + sequence[i - 1]);
     // Publish feedback
     request->publish_feedback(feedback);
-    RCLCPP_INFO(this->get_logger(), "Publish feedback");
+    RCLCPP_INFO_STREAM(this->get_logger(), "Publish feedback: " << *feedback);
 
     loop_rate.sleep();
   }
@@ -67,12 +69,8 @@ FibonacciActionServer::Receive(const rclcpp_action::GoalUUID& uuid,
                                std::shared_ptr<const Msg::Goal> request)
 {
   RCLCPP_INFO(this->get_logger(), "Receive goal request");
-  std::stringstream ss;
-  ss << std::hex << std::setfill('0') << std::setw(2);
-  for (const auto& id : uuid) {
-    ss << static_cast<int>(id);
-  }
-  RCLCPP_INFO(this->get_logger(), "Request ID: %s", ss.str().data());
+  RCLCPP_INFO_STREAM(this->get_logger(), "Request ID: " << uuid);
+
   if (request->order < 0) {
     RCLCPP_INFO(this->get_logger(), "Request was rejected");
     return rclcpp_action::GoalResponse::REJECT;

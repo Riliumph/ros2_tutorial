@@ -2,12 +2,14 @@
 #define FIBONACCI__ACTION_CLIENT_HPP_
 // STL
 #include <memory>
+#include <ostream>
 // ROS2
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
+// other pkg
+#include "fibonacci_msg/action/operator_io.hpp"
 // ROS2 automatically created definition
 #include "fibonacci/visibility_control.h"
-#include "fibonacci_msg/action/fibonacci.hpp"
 
 namespace fibonacci {
 /// @brief N個までのFibonacci数を算出して返すサービスへ通信するクライアント

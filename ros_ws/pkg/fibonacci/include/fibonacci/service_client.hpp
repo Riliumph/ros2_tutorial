@@ -6,9 +6,10 @@
 #include <thread>
 // ROS2
 #include <rclcpp/rclcpp.hpp>
+// other pkg
+#include "fibonacci_msg/srv/operator_io.hpp"
 // ROS2 automatically created definition
 #include "fibonacci/visibility_control.h"
-#include "fibonacci_msg/srv/fibonacci.hpp"
 
 namespace fibonacci {
 /// @brief Fibonacci数を算出して返すサービスサーバーへ通信するクライアント

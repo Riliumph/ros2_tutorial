@@ -34,7 +34,7 @@ FibonacciActionClient::send(Msg::Goal request)
                  "Action server not available after waiting");
   }
 
-  RCLCPP_INFO(this->get_logger(), "Sending request");
+  RCLCPP_INFO_STREAM(this->get_logger(), "Sending request: " << request);
   auto goal_handle_future =
     this->client->async_send_goal(request, send_options);
 
@@ -135,12 +135,8 @@ FibonacciActionClient::ReceiveFeedback(
   const Msg::Feedback::ConstSharedPtr response)
 {
   RCLCPP_INFO(this->get_logger(), "Received feedback");
-  std::stringstream ss;
-  ss << "Next number in sequence received: ";
-  for (auto number : response->partial_sequence) {
-    ss << number << " ";
-  }
-  RCLCPP_INFO(this->get_logger(), ss.str().data());
+  RCLCPP_INFO_STREAM(this->get_logger(),
+                     "Next number in sequence received: " << *response);
 
   // 10以上は大きすぎるので必要ない
   auto max_it = std::max_element(response->partial_sequence.begin(),
@@ -178,12 +174,7 @@ FibonacciActionClient::ReceiveResult(const GoalHandle::WrappedResult& result)
       rclcpp::shutdown();
       return;
   }
-  std::stringstream ss;
-  ss << "Result received: ";
-  for (auto number : result.result->sequence) {
-    ss << number << " ";
-  }
-  RCLCPP_INFO(this->get_logger(), ss.str().data());
+  RCLCPP_INFO_STREAM(this->get_logger(), "Result received: " << result.result);
   rclcpp::shutdown(); // rclcpp::spinの停止
 }
 } // namespace fibonacci

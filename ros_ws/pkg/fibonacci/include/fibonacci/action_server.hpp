@@ -7,7 +7,7 @@
 #include <rclcpp_action/rclcpp_action.hpp>
 // ROS2 automatically created definition
 #include "fibonacci/visibility_control.h"
-#include "fibonacci_msg/action/fibonacci.hpp"
+#include "fibonacci_msg/action/operator_io.hpp"
 
 namespace fibonacci {
 /// @brief N回までのFibonacci数を算出して返すサービス
