@@ -16,12 +16,14 @@ main(int argc, char** argv)
   auto goal = fibonacci::FibonacciActionClient::Msg::Goal();
   goal.order = 10;
   auto result = cli->send(goal);
-  std::stringstream ss;
-  ss << "Received: ";
-  for (const auto& s : result->sequence) {
-    ss << s << " ";
+  if (result) {
+    std::stringstream ss;
+    ss << "Received: ";
+    for (const auto& s : result->sequence) {
+      ss << s << " ";
+    }
+    std::cout << ss.str() << std::endl;
   }
-  std::cout << ss.str() << std::endl;
   rclcpp::shutdown();
   return 0;
 }
