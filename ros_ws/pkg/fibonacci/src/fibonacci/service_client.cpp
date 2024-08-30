@@ -5,7 +5,6 @@
 #include "fibonacci/service_server.hpp"
 
 namespace fibonacci {
-
 /// @brief コンストラクタ
 /// @param options ROS2のノード設定
 FibonacciServiceClient::FibonacciServiceClient(
@@ -21,7 +20,9 @@ FibonacciServiceClient::FibonacciServiceClient(
                                    timer_callback_lambda);
 }
 
-/// @brief 実行関数
+/// @brief サーバーへ送信する関数
+/// 現状、外部から値を受ける仕組みはない。
+/// @return レスポンス情報
 void
 FibonacciServiceClient::send()
 {
@@ -50,7 +51,7 @@ FibonacciServiceClient::send()
     for (auto number : result.get()->sequence) {
       ss << number << " ";
     }
-    RCLCPP_INFO(this->get_logger(), "%s", ss.str().c_str());
+    RCLCPP_INFO(this->get_logger(), "%s", ss.str().data());
   } else {
     RCLCPP_ERROR(rclcpp::get_logger("rclcpp"),
                  "Failed to call service add_two_ints");
@@ -63,11 +64,10 @@ FibonacciServiceClient::send()
       for (auto number : future.get()->sequence) {
         ss << number << " ";
       }
-      RCLCPP_INFO(this->get_logger(), "%s", ss.str().c_str());
+      RCLCPP_INFO(this->get_logger(), "%s", ss.str().data());
     });
 #endif
-};
-
+}
 } // namespace fibonacci
 
 // #include "rclcpp_components/register_node_macro.hpp"

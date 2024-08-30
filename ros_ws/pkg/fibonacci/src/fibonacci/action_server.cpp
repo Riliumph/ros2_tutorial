@@ -4,7 +4,6 @@
 #include <thread>
 
 namespace fibonacci {
-
 /// @brief コンストラクタ
 /// @param options ROS2のノード設定
 FibonacciActionServer::FibonacciActionServer(const rclcpp::NodeOptions& options)
@@ -20,14 +19,14 @@ FibonacciActionServer::FibonacciActionServer(const rclcpp::NodeOptions& options)
     std::bind(&FibonacciActionServer::Accept, this, _1));
 }
 
-/// @brief 実行関数
-/// @param goal_handle
+/// @brief サーバーの業務処理
+/// @param request リクエスト情報
 void
-FibonacciActionServer::execute(const std::shared_ptr<GoalHandle> goal_handle)
+FibonacciActionServer::execute(const std::shared_ptr<GoalHandle> request)
 {
   RCLCPP_INFO(this->get_logger(), "Executing goal");
   rclcpp::Rate loop_rate(1);
-  const auto goal = goal_handle->get_goal();
+  const auto goal = request->get_goal();
   auto feedback = std::make_shared<Msg::Feedback>();
   auto& sequence = feedback->partial_sequence;
   sequence.push_back(0);
@@ -36,16 +35,16 @@ FibonacciActionServer::execute(const std::shared_ptr<GoalHandle> goal_handle)
 
   for (int i = 1; (i < goal->order) && rclcpp::ok(); ++i) {
     // Check if there is a cancel request
-    if (goal_handle->is_canceling()) {
+    if (request->is_canceling()) {
       result->sequence = sequence;
-      goal_handle->canceled(result);
+      request->canceled(result);
       RCLCPP_INFO(this->get_logger(), "Goal canceled");
       return;
     }
     // Update sequence
     sequence.push_back(sequence[i] + sequence[i - 1]);
     // Publish feedback
-    goal_handle->publish_feedback(feedback);
+    request->publish_feedback(feedback);
     RCLCPP_INFO(this->get_logger(), "Publish feedback");
 
     loop_rate.sleep();
@@ -54,15 +53,15 @@ FibonacciActionServer::execute(const std::shared_ptr<GoalHandle> goal_handle)
   // Check if goal is done
   if (rclcpp::ok()) {
     result->sequence = sequence;
-    goal_handle->succeed(result);
+    request->succeed(result); // response
     RCLCPP_INFO(this->get_logger(), "Goal succeeded");
   }
-};
+}
 
 /// @brief Goalリクエスト受信時に発火するコールバック
 /// @param uuid リクエストIDに相当するID
 /// @param request クライアントから受信したデータ
-/// @return 実行許可
+/// @return 実行許可状態
 rclcpp_action::GoalResponse
 FibonacciActionServer::Receive(const rclcpp_action::GoalUUID& uuid,
                                std::shared_ptr<const Msg::Goal> request)
@@ -105,7 +104,6 @@ FibonacciActionServer::Accept(std::shared_ptr<GoalHandle> request)
   std::thread{ std::bind(&FibonacciActionServer::execute, this, _1), request }
     .detach();
 }
-
 } // namespace fibonacci
 
 #include "rclcpp_components/register_node_macro.hpp"

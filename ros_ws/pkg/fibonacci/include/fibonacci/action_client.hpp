@@ -10,7 +10,7 @@
 #include "fibonacci_msg/action/fibonacci.hpp"
 
 namespace fibonacci {
-
+/// @brief N個までのFibonacci数を算出して返すサービスへ通信するクライアント
 class FibonacciActionClient : public rclcpp::Node
 {
 public:
@@ -21,6 +21,7 @@ public:
   static constexpr const char* node_name = "fibonacci_action_client_node";
   static constexpr const char* client_name = "fibonacci_action_client";
 
+public:
   FIBONACCI_PUBLIC explicit FibonacciActionClient(
     const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
   Msg::Result::SharedPtr send(Msg::Goal goal);

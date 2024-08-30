@@ -6,7 +6,6 @@
 #include "fibonacci/action_server.hpp"
 
 namespace fibonacci {
-
 /// @brief コンストラクタ
 /// @param options ROS2のノード設定
 FibonacciActionClient::FibonacciActionClient(const rclcpp::NodeOptions& options)
@@ -24,22 +23,23 @@ FibonacciActionClient::FibonacciActionClient(const rclcpp::NodeOptions& options)
   //   std::bind(&FibonacciActionClient::ReceiveResult, this, _1);
 }
 
-/// @brief 実行関数
+/// @brief サーバーへ送信する関数
+/// @param request 送信するゴール情報
+/// @return レスポンス情報
 FibonacciActionClient::Msg::Result::SharedPtr
-FibonacciActionClient::send(Msg::Goal goal)
+FibonacciActionClient::send(Msg::Goal request)
 {
-  // this->timer_->cancel();
-
   if (!client->wait_for_action_server()) {
     RCLCPP_ERROR(this->get_logger(),
                  "Action server not available after waiting");
     rclcpp::shutdown(); // rclcpp::spinの解除
   }
 
-  RCLCPP_INFO(this->get_logger(), "Sending goal");
+  RCLCPP_INFO(this->get_logger(), "Sending request");
 
   // アクセプト待ち
-  auto goal_handle_future = this->client->async_send_goal(goal, send_options);
+  auto goal_handle_future =
+    this->client->async_send_goal(request, send_options);
   auto accepted = rclcpp::spin_until_future_complete(
     this->get_node_base_interface(), goal_handle_future);
   if (accepted != rclcpp::FutureReturnCode::SUCCESS) {
@@ -66,10 +66,10 @@ FibonacciActionClient::send(Msg::Goal goal)
     case rclcpp_action::ResultCode::SUCCEEDED:
       break;
     case rclcpp_action::ResultCode::ABORTED:
-      RCLCPP_ERROR(this->get_logger(), "goal was aborted");
+      RCLCPP_ERROR(this->get_logger(), "request was aborted");
       return nullptr;
     case rclcpp_action::ResultCode::CANCELED:
-      RCLCPP_ERROR(this->get_logger(), "goal was canceled");
+      RCLCPP_ERROR(this->get_logger(), "request was canceled");
       return nullptr;
     default:
       RCLCPP_ERROR(this->get_logger(),
@@ -80,6 +80,8 @@ FibonacciActionClient::send(Msg::Goal goal)
   return result.result;
 }
 
+/// @brief アクションサーバーに処理の中止を要求する
+/// @param request 中止するリクエストを特定する情報
 void
 FibonacciActionClient::Cancel(const GoalHandle::SharedPtr& request)
 {
@@ -88,39 +90,39 @@ FibonacciActionClient::Cancel(const GoalHandle::SharedPtr& request)
   // のfuture-blockingが解除される
 }
 
-/// @brief リクエスト受信時にコールバックされる関数
-/// @param request クライアントからのゴールハンドル
+/// @brief サーバーからのACCEPTの受信時に発火するコールバック
+/// サーバーのReceiveコールバックの戻り値を引数で受ける。
+/// @param response サーバーのReceiveの結果を格納したデータ
 void
-FibonacciActionClient::ReceiveRequest(const GoalHandle::SharedPtr& request)
+FibonacciActionClient::ReceiveRequest(const GoalHandle::SharedPtr& response)
 {
-  if (!request) {
+  if (!response) {
     RCLCPP_ERROR(this->get_logger(), "Goal was rejected by server");
   } else {
-    RCLCPP_INFO(this->get_logger(),
-                "Goal accepted by server, waiting for result");
+    RCLCPP_INFO(this->get_logger(), "Goal was accepted by server");
   }
 }
 
-/// @brief フィードバック受信時にコールバックされる関数
-/// @param goal_handle ゴールハンドル
-/// @param feedback フィードバックデータ
+/// @brief フィードバック受信時に発火するコールバック
+/// @param goal_handle リクエストを特定する情報
+/// @param response フィードバックとして受け取るレスポンス情報
 void
 FibonacciActionClient::ReceiveFeedback(
   GoalHandle::SharedPtr goal_handle,
-  const Msg::Feedback::ConstSharedPtr feedback)
+  const Msg::Feedback::ConstSharedPtr response)
 {
   RCLCPP_INFO(this->get_logger(), "Received feedback");
   std::stringstream ss;
   ss << "Next number in sequence received: ";
-  for (auto number : feedback->partial_sequence) {
+  for (auto number : response->partial_sequence) {
     ss << number << " ";
   }
   RCLCPP_INFO(this->get_logger(), ss.str().data());
 
   // 10以上は大きすぎるので必要ない
-  auto max_it = std::max_element(feedback->partial_sequence.begin(),
-                                 feedback->partial_sequence.end());
-  if (max_it != feedback->partial_sequence.end()) {
+  auto max_it = std::max_element(response->partial_sequence.begin(),
+                                 response->partial_sequence.end());
+  if (max_it != response->partial_sequence.end()) {
     if (10 < *max_it) {
       RCLCPP_INFO(this->get_logger(),
                   "fibonacci support under 10. canceling...");
@@ -129,7 +131,7 @@ FibonacciActionClient::ReceiveFeedback(
   }
 }
 
-/// @brief リザルト受信時にコールバックされる関数
+/// @brief リザルト受信時に発火するコールバック
 /// @param result リザルト
 void
 FibonacciActionClient::ReceiveResult(const GoalHandle::WrappedResult& result)
@@ -152,10 +154,9 @@ FibonacciActionClient::ReceiveResult(const GoalHandle::WrappedResult& result)
   for (auto number : result.result->sequence) {
     ss << number << " ";
   }
-  RCLCPP_INFO(this->get_logger(), ss.str().c_str());
+  RCLCPP_INFO(this->get_logger(), ss.str().data());
   rclcpp::shutdown(); // rclcpp::spinの停止
 }
-
 } // namespace fibonacci
 
 #include "rclcpp_components/register_node_macro.hpp"
