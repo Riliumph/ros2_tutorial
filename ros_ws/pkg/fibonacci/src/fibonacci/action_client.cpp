@@ -1,5 +1,6 @@
 #include "fibonacci/action_client.hpp"
 // STL
+#include <functional>
 #include <sstream>
 // original
 #include "fibonacci/action_server.hpp"
@@ -12,16 +13,15 @@ FibonacciActionClient::FibonacciActionClient(const rclcpp::NodeOptions& options)
   : Node(node_name, options)
   , dest_server_name(FibonacciActionServer::server_name)
 {
+  using namespace std::placeholders;
   RCLCPP_DEBUG(this->get_logger(), "Establish Client");
   client = rclcpp_action::create_client<Msg>(this, dest_server_name);
-
-  // auto timer_callback_lambda = [this]() {
-  //   auto goal = Msg::Goal();
-  //   goal.order = 10;
-  //   return this->send(goal);
-  // };
-  // timer_ = this->create_wall_timer(std::chrono::milliseconds(500),
-  //                                  timer_callback_lambda);
+  send_options.feedback_callback =
+    std::bind(&FibonacciActionClient::ReceiveFeedback, this, _1, _2);
+  // send_options.goal_response_callback =
+  //   std::bind(&FibonacciActionClient::ReceiveRequest, this, _1);
+  // send_options.result_callback =
+  //   std::bind(&FibonacciActionClient::ReceiveResult, this, _1);
 }
 
 /// @brief 実行関数
@@ -38,17 +38,6 @@ FibonacciActionClient::send(Msg::Goal goal)
 
   RCLCPP_INFO(this->get_logger(), "Sending goal");
 
-  auto send_options = rclcpp_action::Client<Msg>::SendGoalOptions();
-  send_options.feedback_callback =
-    [this](GoalHandle::SharedPtr,
-           const std::shared_ptr<const Msg::Feedback> feedback) {
-      std::stringstream ss;
-      ss << "Next number in sequence received: ";
-      for (auto number : feedback->partial_sequence) {
-        ss << number << " ";
-      }
-      RCLCPP_INFO(this->get_logger(), ss.str().c_str());
-    };
   // アクセプト待ち
   auto goal_handle_future = this->client->async_send_goal(goal, send_options);
   auto accepted = rclcpp::spin_until_future_complete(
@@ -89,6 +78,82 @@ FibonacciActionClient::send(Msg::Goal goal)
       return nullptr;
   }
   return result.result;
+}
+
+void
+FibonacciActionClient::Cancel(const GoalHandle::SharedPtr& request)
+{
+  client->async_cancel_goal(request);
+  // auto result_future = client->async_get_result(goal_handle);
+  // のfuture-blockingが解除される
+}
+
+/// @brief リクエスト受信時にコールバックされる関数
+/// @param request クライアントからのゴールハンドル
+void
+FibonacciActionClient::ReceiveRequest(const GoalHandle::SharedPtr& request)
+{
+  if (!request) {
+    RCLCPP_ERROR(this->get_logger(), "Goal was rejected by server");
+  } else {
+    RCLCPP_INFO(this->get_logger(),
+                "Goal accepted by server, waiting for result");
+  }
+}
+
+/// @brief フィードバック受信時にコールバックされる関数
+/// @param goal_handle ゴールハンドル
+/// @param feedback フィードバックデータ
+void
+FibonacciActionClient::ReceiveFeedback(
+  GoalHandle::SharedPtr goal_handle,
+  const Msg::Feedback::ConstSharedPtr feedback)
+{
+  RCLCPP_INFO(this->get_logger(), "Received feedback");
+  std::stringstream ss;
+  ss << "Next number in sequence received: ";
+  for (auto number : feedback->partial_sequence) {
+    ss << number << " ";
+  }
+  RCLCPP_INFO(this->get_logger(), ss.str().data());
+
+  // 10以上は大きすぎるので必要ない
+  auto max_it = std::max_element(feedback->partial_sequence.begin(),
+                                 feedback->partial_sequence.end());
+  if (max_it != feedback->partial_sequence.end()) {
+    if (10 < *max_it) {
+      RCLCPP_INFO(this->get_logger(),
+                  "fibonacci support under 10. canceling...");
+      Cancel(goal_handle);
+    }
+  }
+}
+
+/// @brief リザルト受信時にコールバックされる関数
+/// @param result リザルト
+void
+FibonacciActionClient::ReceiveResult(const GoalHandle::WrappedResult& result)
+{
+  switch (result.code) {
+    case rclcpp_action::ResultCode::SUCCEEDED:
+      break;
+    case rclcpp_action::ResultCode::ABORTED:
+      RCLCPP_ERROR(this->get_logger(), "Goal was aborted");
+      return;
+    case rclcpp_action::ResultCode::CANCELED:
+      RCLCPP_ERROR(this->get_logger(), "Goal was canceled");
+      return;
+    default:
+      RCLCPP_ERROR(this->get_logger(), "Unknown result code");
+      return;
+  }
+  std::stringstream ss;
+  ss << "Result received: ";
+  for (auto number : result.result->sequence) {
+    ss << number << " ";
+  }
+  RCLCPP_INFO(this->get_logger(), ss.str().c_str());
+  rclcpp::shutdown(); // rclcpp::spinの停止
 }
 
 } // namespace fibonacci

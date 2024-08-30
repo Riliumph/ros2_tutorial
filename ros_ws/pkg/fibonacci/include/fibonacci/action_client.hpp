@@ -1,9 +1,7 @@
 #ifndef FIBONACCI__ACTION_CLIENT_HPP_
 #define FIBONACCI__ACTION_CLIENT_HPP_
 // STL
-#include <functional>
 #include <memory>
-#include <thread>
 // ROS2
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
@@ -26,11 +24,19 @@ public:
   FIBONACCI_PUBLIC explicit FibonacciActionClient(
     const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
   Msg::Result::SharedPtr send(Msg::Goal goal);
+  void Cancel(const GoalHandle::SharedPtr& request);
 
 private:
   rclcpp_action::Client<Msg>::SharedPtr client;
   rclcpp::TimerBase::SharedPtr timer_;
   std::string dest_server_name;
+  rclcpp_action::Client<Msg>::SendGoalOptions send_options;
+
+private: // callback
+  void ReceiveRequest(const GoalHandle::SharedPtr& request);
+  void ReceiveFeedback(GoalHandle::SharedPtr goal_handle,
+                       const Msg::Feedback::ConstSharedPtr feedback);
+  void ReceiveResult(const GoalHandle::WrappedResult& result);
 };
 
 } // namespace fibonacci

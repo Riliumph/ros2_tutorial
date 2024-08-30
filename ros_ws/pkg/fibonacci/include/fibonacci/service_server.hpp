@@ -14,12 +14,14 @@ namespace fibonacci {
 
 class FibonacciServiceServer : public rclcpp::Node
 {
+public:
   using Msg = fibonacci_msg::srv::Fibonacci;
 
 public:
   static constexpr const char* node_name = "fibonacci_service_server_node";
   static constexpr const char* server_name = "fibonacci_service_server";
 
+public:
   FIBONACCI_PUBLIC explicit FibonacciServiceServer(
     const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 

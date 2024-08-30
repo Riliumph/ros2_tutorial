@@ -1,9 +1,7 @@
 #ifndef FIBONACCI__ACTION_SERVER_HPP_
 #define FIBONACCI__ACTION_SERVER_HPP_
 // STL
-#include <functional>
 #include <memory>
-#include <thread>
 // ROS2
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
@@ -15,6 +13,7 @@ namespace fibonacci {
 
 class FibonacciActionServer : public rclcpp::Node
 {
+public:
   using Msg = fibonacci_msg::action::Fibonacci;
   using GoalHandle = rclcpp_action::ServerGoalHandle<Msg>;
 
@@ -28,6 +27,12 @@ public:
 private:
   rclcpp_action::Server<Msg>::SharedPtr server;
   void execute(const std::shared_ptr<GoalHandle> goal_handle);
+
+private: // callback
+  rclcpp_action::GoalResponse Receive(const rclcpp_action::GoalUUID& uuid,
+                                      std::shared_ptr<const Msg::Goal> request);
+  rclcpp_action::CancelResponse Cancel(std::shared_ptr<GoalHandle> request);
+  void Accept(std::shared_ptr<GoalHandle> request);
 };
 
 } // namespace fibonacci

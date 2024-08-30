@@ -14,6 +14,7 @@ namespace fibonacci {
 
 class FibonacciServiceClient : public rclcpp::Node
 {
+public:
   using Msg = fibonacci_msg::srv::Fibonacci;
 
 public:
