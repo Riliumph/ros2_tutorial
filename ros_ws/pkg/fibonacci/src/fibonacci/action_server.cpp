@@ -24,7 +24,7 @@ FibonacciActionServer::FibonacciActionServer(const rclcpp::NodeOptions& options)
 void
 FibonacciActionServer::execute(const std::shared_ptr<GoalHandle> request)
 {
-  RCLCPP_INFO(this->get_logger(), "Executing goal");
+  RCLCPP_INFO(this->get_logger(), "Executing fibonacci service");
   rclcpp::Rate loop_rate(1);
   const auto goal = request->get_goal();
   auto feedback = std::make_shared<Msg::Feedback>();
@@ -38,7 +38,7 @@ FibonacciActionServer::execute(const std::shared_ptr<GoalHandle> request)
     if (request->is_canceling()) {
       result->sequence = sequence;
       request->canceled(result);
-      RCLCPP_INFO(this->get_logger(), "Goal canceled");
+      RCLCPP_INFO(this->get_logger(), "Request was canceled");
       return;
     }
     // Update sequence
@@ -54,7 +54,7 @@ FibonacciActionServer::execute(const std::shared_ptr<GoalHandle> request)
   if (rclcpp::ok()) {
     result->sequence = sequence;
     request->succeed(result); // response
-    RCLCPP_INFO(this->get_logger(), "Goal succeeded");
+    RCLCPP_INFO(this->get_logger(), "Request was succeeded");
   }
 }
 
@@ -98,7 +98,7 @@ void
 FibonacciActionServer::Accept(std::shared_ptr<GoalHandle> request)
 {
   using namespace std::placeholders;
-  RCLCPP_INFO(this->get_logger(), "Beginning execution of goal");
+  RCLCPP_INFO(this->get_logger(), "Start execution of goal");
   // this needs to return quickly to avoid blocking the executor,
   // so spin up a new thread
   std::thread{ std::bind(&FibonacciActionServer::execute, this, _1), request }

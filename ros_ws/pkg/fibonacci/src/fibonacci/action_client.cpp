@@ -32,38 +32,61 @@ FibonacciActionClient::send(Msg::Goal request)
   if (!client->wait_for_action_server()) {
     RCLCPP_ERROR(this->get_logger(),
                  "Action server not available after waiting");
-    rclcpp::shutdown(); // rclcpp::spinの解除
   }
 
   RCLCPP_INFO(this->get_logger(), "Sending request");
-
-  // アクセプト待ち
   auto goal_handle_future =
     this->client->async_send_goal(request, send_options);
+
+  RCLCPP_INFO(this->get_logger(), "Waiting for accept");
   auto accepted = rclcpp::spin_until_future_complete(
     this->get_node_base_interface(), goal_handle_future);
-  if (accepted != rclcpp::FutureReturnCode::SUCCESS) {
-    RCLCPP_ERROR(this->get_logger(), "failed to call send_goal");
-    return nullptr;
+  switch (accepted) {
+    case rclcpp::FutureReturnCode::SUCCESS:
+      RCLCPP_INFO(this->get_logger(), "request was accepted");
+      break;
+    case rclcpp::FutureReturnCode::INTERRUPTED:
+      RCLCPP_ERROR(this->get_logger(), "Request was interrupted");
+      return nullptr;
+    case rclcpp::FutureReturnCode::TIMEOUT:
+      RCLCPP_ERROR(this->get_logger(), "Request was timeout");
+      return nullptr;
+    default:
+      RCLCPP_ERROR(this->get_logger(), "Request was missed");
+      return nullptr;
   }
 
   auto goal_handle = goal_handle_future.get();
   if (!goal_handle) {
-    RCLCPP_ERROR(this->get_logger(), "Goal was rejected");
+    RCLCPP_ERROR(this->get_logger(), "Request was rejected");
     return nullptr;
   }
 
-  RCLCPP_INFO(this->get_logger(), "wait for result from server");
+  RCLCPP_INFO(this->get_logger(), "Request result");
   auto result_future = client->async_get_result(goal_handle);
+
+  RCLCPP_INFO(this->get_logger(), "Wait for result");
   auto response = rclcpp::spin_until_future_complete(
     this->get_node_base_interface(), result_future);
-  if (response != rclcpp::FutureReturnCode::SUCCESS) {
-    RCLCPP_ERROR(this->get_logger(), "failed to get result");
-    return nullptr;
+  switch (response) {
+    case rclcpp::FutureReturnCode::SUCCESS:
+      RCLCPP_INFO(this->get_logger(), "request was accepted");
+      break;
+    case rclcpp::FutureReturnCode::INTERRUPTED:
+      RCLCPP_ERROR(this->get_logger(), "Request was interrupted");
+      return nullptr;
+    case rclcpp::FutureReturnCode::TIMEOUT:
+      RCLCPP_ERROR(this->get_logger(), "Request was timeout");
+      return nullptr;
+    default:
+      RCLCPP_ERROR(this->get_logger(), "Request was missed");
+      return nullptr;
   }
+
   auto result = result_future.get();
   switch (result.code) {
     case rclcpp_action::ResultCode::SUCCEEDED:
+      RCLCPP_INFO(this->get_logger(), "request was succeeded");
       break;
     case rclcpp_action::ResultCode::ABORTED:
       RCLCPP_ERROR(this->get_logger(), "request was aborted");
@@ -97,9 +120,9 @@ void
 FibonacciActionClient::ReceiveRequest(const GoalHandle::SharedPtr& response)
 {
   if (!response) {
-    RCLCPP_ERROR(this->get_logger(), "Goal was rejected by server");
+    RCLCPP_ERROR(this->get_logger(), "Request was rejected by server");
   } else {
-    RCLCPP_INFO(this->get_logger(), "Goal was accepted by server");
+    RCLCPP_INFO(this->get_logger(), "response was accepted by server");
   }
 }
 
@@ -138,15 +161,21 @@ FibonacciActionClient::ReceiveResult(const GoalHandle::WrappedResult& result)
 {
   switch (result.code) {
     case rclcpp_action::ResultCode::SUCCEEDED:
+      RCLCPP_INFO(this->get_logger(), "Request was succeeded");
       break;
     case rclcpp_action::ResultCode::ABORTED:
-      RCLCPP_ERROR(this->get_logger(), "Goal was aborted");
+      RCLCPP_ERROR(this->get_logger(), "Request was aborted");
+      rclcpp::shutdown();
       return;
     case rclcpp_action::ResultCode::CANCELED:
-      RCLCPP_ERROR(this->get_logger(), "Goal was canceled");
+      RCLCPP_ERROR(this->get_logger(), "Request was canceled");
+      rclcpp::shutdown();
       return;
     default:
-      RCLCPP_ERROR(this->get_logger(), "Unknown result code");
+      RCLCPP_ERROR(this->get_logger(),
+                   "unexpected return code(%d)",
+                   static_cast<int8_t>(result.code));
+      rclcpp::shutdown();
       return;
   }
   std::stringstream ss;

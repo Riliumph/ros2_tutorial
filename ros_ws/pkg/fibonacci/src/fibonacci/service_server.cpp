@@ -22,7 +22,7 @@ void
 FibonacciServiceServer::execute(const std::shared_ptr<Msg::Request> request,
                                 std::shared_ptr<Msg::Response> response)
 {
-  RCLCPP_INFO(this->get_logger(), "Executing Fibonacci Service");
+  RCLCPP_INFO(this->get_logger(), "Executing fibonacci Service");
 
   auto& sequence = response->sequence;
   sequence.push_back(0);
@@ -33,7 +33,7 @@ FibonacciServiceServer::execute(const std::shared_ptr<Msg::Request> request,
     sequence.push_back(sequence[i] + sequence[i - 1]);
   }
 
-  RCLCPP_INFO(this->get_logger(), "Fibonacci Service succeeded");
+  RCLCPP_INFO(this->get_logger(), "Request was succeeded");
 }
 } // namespace fibonacci
 

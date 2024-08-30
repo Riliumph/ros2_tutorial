@@ -40,22 +40,31 @@ FibonacciServiceClient::send()
   RCLCPP_INFO(this->get_logger(), "Sending request");
 #if 1
   auto result = client->async_send_request(request);
+  RCLCPP_INFO(this->get_logger(), "Waiting for response");
   // TODO: Segmentation faultの発生を確認
   // Attention: rclcpp::spinとの多重spin発生に気を付ける
   auto return_code =
     rclcpp::spin_until_future_complete(this->get_node_base_interface(), result);
-
-  if (return_code == rclcpp::FutureReturnCode::SUCCESS) {
-    std::stringstream ss;
-    ss << "Result received: ";
-    for (auto number : result.get()->sequence) {
-      ss << number << " ";
-    }
-    RCLCPP_INFO(this->get_logger(), "%s", ss.str().data());
-  } else {
-    RCLCPP_ERROR(rclcpp::get_logger("rclcpp"),
-                 "Failed to call service add_two_ints");
+  switch (return_code) {
+    case rclcpp::FutureReturnCode::SUCCESS:
+      RCLCPP_INFO(this->get_logger(), "Request was succeeded");
+      break;
+    case rclcpp::FutureReturnCode::INTERRUPTED:
+      RCLCPP_ERROR(this->get_logger(), "Request was interrupted");
+      return;
+    case rclcpp::FutureReturnCode::TIMEOUT:
+      RCLCPP_ERROR(this->get_logger(), "Request was timeout");
+      return;
+    default:
+      RCLCPP_ERROR(this->get_logger(), "Request was missed");
+      return;
   }
+  std::stringstream ss;
+  ss << "Result received: ";
+  for (auto number : result.get()->sequence) {
+    ss << number << " ";
+  }
+  RCLCPP_INFO(this->get_logger(), ss.str().data());
 #else
   auto result = client->async_send_request(
     request, [this](rclcpp::Client<Msg>::SharedFuture future) {
