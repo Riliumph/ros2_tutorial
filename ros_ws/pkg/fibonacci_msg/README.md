@@ -24,13 +24,15 @@ ros_ws/
     | └ fibonacci_msg/
     |   └ fibonacci_msg/
     |     ├ action/
-    |     | ├ detail/       # ROSのメッセージの定義ファイル群
-    |     | ├ fibonacci.h   # C用メッセージ代表ヘッダ
-    |     | └ fibonacci.hpp # C++用メッセージ代表ヘッダ
+    |     | ├ detail/         # ROSのメッセージの定義ファイル群
+    |     | ├ fibonacci.h     # C用メッセージ代表ヘッダ
+    |     | ├ fibonacci.hpp   # C++用メッセージ代表ヘッダ
+    |     | └ operator_io.hpp # 独自の演算子群
     |     └ srv/
-    |       ├ detail/       # ROSのメッセージの定義ファイル群
-    |       ├ fibonacci.h   # C用メッセージ代表ヘッダ
-    |       └ fibonacci.hpp # C++用メッセージ代表ヘッダ
+    |       ├ detail/         # ROSのメッセージの定義ファイル群
+    |       ├ fibonacci.h     # C用メッセージ代表ヘッダ
+    |       ├ fibonacci.hpp   # C++用メッセージ代表ヘッダ
+    |       └ operator_io.hpp # 独自の演算子群
     |
     ├ lib/
     └ share/

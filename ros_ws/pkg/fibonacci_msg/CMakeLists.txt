@@ -18,6 +18,17 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/Fibonacci.srv"
 )
 
+# Include directories
+include_directories(
+  include
+)
+
+# Install the header file
+install(
+  DIRECTORY include/
+  DESTINATION include/${PROJECT_NAME}
+)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights

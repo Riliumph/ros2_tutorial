@@ -40,7 +40,7 @@ ament_target_dependencies(${SRV_SRV_LIB}
   "rclcpp_components"
   "fibonacci_msg"
 )
-rclcpp_components_register_nodes(${SRV_SRV_LIB} "fibonacci::FibonacciServiceServer")
+rclcpp_components_register_nodes(${SRV_SRV_LIB} "fibonacci::ServiceServer")
 
 # アクションサーバー
 set(ACT_SRV_LIB "fibonacci_action_server") # 接頭辞libは不要
@@ -63,7 +63,7 @@ ament_target_dependencies(${ACT_SRV_LIB}
   "rclcpp_components"
   "fibonacci_msg"
 )
-rclcpp_components_register_nodes(${ACT_SRV_LIB} "fibonacci::FibonacciActionServer")
+rclcpp_components_register_nodes(${ACT_SRV_LIB} "fibonacci::ActionServer")
 
 # アクションクライアントライブラリ
 set(ACT_CLI_LIB "fibonacci_action_client") # 接頭辞libは不要
@@ -145,7 +145,7 @@ set(SRV_CLI_BIN "fibonacci_service_client_node")
 # rclcpp::spinとrclcpp::spin_until_future_completeの多重spinが発生するためNG
 # 詳細はwikiへ
 # rclcpp_components_register_node(${SRV_CLI_LIB}
-#   PLUGIN "fibonacci::FibonacciServiceClient"
+#   PLUGIN "fibonacci::ServiceClient"
 #   EXECUTABLE ${SRV_CLI_BIN}
 # )
 add_executable(${SRV_CLI_BIN}

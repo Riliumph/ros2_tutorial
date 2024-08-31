@@ -1,30 +1,27 @@
 #include "fibonacci/service_server.hpp"
+// STL
+#include <functional>
 
 namespace fibonacci {
-
 /// @brief コンストラクタ
 /// @param options ROS2のノード設定
-FibonacciServiceServer::FibonacciServiceServer(
-  const rclcpp::NodeOptions& options)
+ServiceServer::ServiceServer(const rclcpp::NodeOptions& options)
   : Node(node_name, options)
 {
+  using namespace std::placeholders;
   RCLCPP_DEBUG(this->get_logger(), "Establish Server");
-  service_server_ =
-    this->create_service<Msg>(server_name,
-                              std::bind(&FibonacciServiceServer::execute,
-                                        this,
-                                        std::placeholders::_1,
-                                        std::placeholders::_2));
-};
+  server = this->create_service<Msg>(
+    server_name, std::bind(&ServiceServer::execute, this, _1, _2));
+}
 
 /// @brief サービス実行関数
 /// @param request リクエスト情報
 /// @param response レスポンス情報
 void
-FibonacciServiceServer::execute(const std::shared_ptr<Msg::Request> request,
-                                std::shared_ptr<Msg::Response> response)
+ServiceServer::execute(const std::shared_ptr<Msg::Request> request,
+                       std::shared_ptr<Msg::Response> response)
 {
-  RCLCPP_INFO(this->get_logger(), "Executing Fibonacci Service");
+  RCLCPP_INFO(this->get_logger(), "Executing fibonacci Service");
 
   auto& sequence = response->sequence;
   sequence.push_back(0);
@@ -35,10 +32,9 @@ FibonacciServiceServer::execute(const std::shared_ptr<Msg::Request> request,
     sequence.push_back(sequence[i] + sequence[i - 1]);
   }
 
-  RCLCPP_INFO(this->get_logger(), "Fibonacci Service succeeded");
-};
-
+  RCLCPP_INFO(this->get_logger(), "Request was succeeded");
+}
 } // namespace fibonacci
 
 #include "rclcpp_components/register_node_macro.hpp"
-RCLCPP_COMPONENTS_REGISTER_NODE(fibonacci::FibonacciServiceServer)
+RCLCPP_COMPONENTS_REGISTER_NODE(fibonacci::ServiceServer)

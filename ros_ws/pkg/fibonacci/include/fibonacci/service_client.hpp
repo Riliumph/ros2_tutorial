@@ -6,26 +6,29 @@
 #include <thread>
 // ROS2
 #include <rclcpp/rclcpp.hpp>
+// other pkg
+#include "fibonacci_msg/srv/operator_io.hpp"
 // ROS2 automatically created definition
 #include "fibonacci/visibility_control.h"
-#include "fibonacci_msg/srv/fibonacci.hpp"
 
 namespace fibonacci {
-
-class FibonacciServiceClient : public rclcpp::Node
+/// @brief Fibonacci数を算出して返すサービスサーバーへ通信するクライアント
+class ServiceClient : public rclcpp::Node
 {
+public:
   using Msg = fibonacci_msg::srv::Fibonacci;
 
 public:
   static constexpr const char* node_name = "fibonacci_service_client_node";
   static constexpr const char* client_name = "fibonacci_service_client";
 
-  FIBONACCI_PUBLIC explicit FibonacciServiceClient(
+public:
+  FIBONACCI_PUBLIC explicit ServiceClient(
     const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
   void send();
 
 private:
-  rclcpp::Client<Msg>::SharedPtr client_ptr_;
+  rclcpp::Client<Msg>::SharedPtr client;
   rclcpp::TimerBase::SharedPtr timer_;
   std::string dest_server_name;
 };
