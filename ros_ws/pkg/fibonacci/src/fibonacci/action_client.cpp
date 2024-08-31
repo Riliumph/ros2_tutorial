@@ -18,7 +18,7 @@ FibonacciActionClient::FibonacciActionClient(const rclcpp::NodeOptions& options)
   send_options.feedback_callback =
     std::bind(&FibonacciActionClient::ReceiveFeedback, this, _1, _2);
   // send_options.goal_response_callback =
-  //   std::bind(&FibonacciActionClient::ReceiveRequest, this, _1);
+  //   std::bind(&FibonacciActionClient::SentRequest, this, _1);
   // send_options.result_callback =
   //   std::bind(&FibonacciActionClient::ReceiveResult, this, _1);
 }
@@ -26,81 +26,23 @@ FibonacciActionClient::FibonacciActionClient(const rclcpp::NodeOptions& options)
 /// @brief サーバーへ送信する関数
 /// @param request 送信するゴール情報
 /// @return レスポンス情報
-FibonacciActionClient::Msg::Result::SharedPtr
-FibonacciActionClient::send(Msg::Goal request)
+std::optional<FibonacciActionClient::GoalHandle::WrappedResult>
+FibonacciActionClient::Send(Msg::Goal request)
 {
   if (!client->wait_for_action_server()) {
     RCLCPP_ERROR(this->get_logger(),
                  "Action server not available after waiting");
   }
-
-  RCLCPP_INFO_STREAM(this->get_logger(), "Sending request: " << request);
-  auto goal_handle_future =
-    this->client->async_send_goal(request, send_options);
-
-  RCLCPP_INFO(this->get_logger(), "Waiting for accept");
-  auto accepted = rclcpp::spin_until_future_complete(
-    this->get_node_base_interface(), goal_handle_future);
-  switch (accepted) {
-    case rclcpp::FutureReturnCode::SUCCESS:
-      RCLCPP_INFO(this->get_logger(), "request was accepted");
-      break;
-    case rclcpp::FutureReturnCode::INTERRUPTED:
-      RCLCPP_ERROR(this->get_logger(), "Request was interrupted");
-      return nullptr;
-    case rclcpp::FutureReturnCode::TIMEOUT:
-      RCLCPP_ERROR(this->get_logger(), "Request was timeout");
-      return nullptr;
-    default:
-      RCLCPP_ERROR(this->get_logger(), "Request was missed");
-      return nullptr;
-  }
-
-  auto goal_handle = goal_handle_future.get();
+  // コールバックのSentRequest()に相当する処理
+  auto goal_handle = SendRequest(request);
   if (!goal_handle) {
     RCLCPP_ERROR(this->get_logger(), "Request was rejected");
-    return nullptr;
+    return std::nullopt;
   }
 
-  RCLCPP_INFO(this->get_logger(), "Request result");
-  auto result_future = client->async_get_result(goal_handle);
-
-  RCLCPP_INFO(this->get_logger(), "Wait for result");
-  auto response = rclcpp::spin_until_future_complete(
-    this->get_node_base_interface(), result_future);
-  switch (response) {
-    case rclcpp::FutureReturnCode::SUCCESS:
-      RCLCPP_INFO(this->get_logger(), "request was accepted");
-      break;
-    case rclcpp::FutureReturnCode::INTERRUPTED:
-      RCLCPP_ERROR(this->get_logger(), "Request was interrupted");
-      return nullptr;
-    case rclcpp::FutureReturnCode::TIMEOUT:
-      RCLCPP_ERROR(this->get_logger(), "Request was timeout");
-      return nullptr;
-    default:
-      RCLCPP_ERROR(this->get_logger(), "Request was missed");
-      return nullptr;
-  }
-
-  auto result = result_future.get();
-  switch (result.code) {
-    case rclcpp_action::ResultCode::SUCCEEDED:
-      RCLCPP_INFO(this->get_logger(), "request was succeeded");
-      break;
-    case rclcpp_action::ResultCode::ABORTED:
-      RCLCPP_ERROR(this->get_logger(), "request was aborted");
-      return nullptr;
-    case rclcpp_action::ResultCode::CANCELED:
-      RCLCPP_ERROR(this->get_logger(), "request was canceled");
-      return nullptr;
-    default:
-      RCLCPP_ERROR(this->get_logger(),
-                   "unexpected return code(%d)",
-                   static_cast<int8_t>(result.code));
-      return nullptr;
-  }
-  return result.result;
+  // コールバックのReceiveResult()に相当する処理
+  auto response = ReceiveResponse(goal_handle);
+  return response;
 }
 
 /// @brief アクションサーバーに処理の中止を要求する
@@ -113,11 +55,67 @@ FibonacciActionClient::Cancel(const GoalHandle::SharedPtr& request)
   // のfuture-blockingが解除される
 }
 
+/// @brief リクエストの送信を行う
+/// @param request サーバーへ送信する情報
+/// @return 受信時に使うハンドル（ID）
+FibonacciActionClient::GoalHandle::SharedPtr
+FibonacciActionClient::SendRequest(Msg::Goal request)
+{
+  RCLCPP_INFO_STREAM(this->get_logger(), "Sending request: " << request);
+  auto goal_handle_future = client->async_send_goal(request, send_options);
+  RCLCPP_INFO(this->get_logger(), "Waiting for accept");
+  auto accepted = rclcpp::spin_until_future_complete(
+    this->get_node_base_interface(), goal_handle_future);
+  switch (accepted) {
+    case rclcpp::FutureReturnCode::SUCCESS:
+      RCLCPP_INFO(this->get_logger(), "Request was accepted");
+      break;
+    case rclcpp::FutureReturnCode::INTERRUPTED:
+      RCLCPP_ERROR(this->get_logger(), "Request was interrupted");
+      return nullptr;
+    case rclcpp::FutureReturnCode::TIMEOUT:
+      RCLCPP_ERROR(this->get_logger(), "Request was timeout");
+      return nullptr;
+    default:
+      RCLCPP_ERROR(this->get_logger(), "Request was missed");
+      return nullptr;
+  }
+  return goal_handle_future.get();
+}
+
+/// @brief レスポンスを受信する処理
+/// @param goal_handle サーバーにリクエストを特定させるためのハンドル（ID）
+/// @return
+FibonacciActionClient::GoalHandle::WrappedResult
+FibonacciActionClient::ReceiveResponse(GoalHandle::SharedPtr goal_handle)
+{
+  RCLCPP_INFO(this->get_logger(), "Request result");
+  auto result_future = client->async_get_result(goal_handle);
+  RCLCPP_INFO(this->get_logger(), "Waiting for result");
+  auto response = rclcpp::spin_until_future_complete(
+    this->get_node_base_interface(), result_future);
+  switch (response) {
+    case rclcpp::FutureReturnCode::SUCCESS:
+      RCLCPP_INFO(this->get_logger(), "Request was succeeded");
+      break;
+    case rclcpp::FutureReturnCode::INTERRUPTED:
+      RCLCPP_ERROR(this->get_logger(), "Request was interrupted");
+      break;
+    case rclcpp::FutureReturnCode::TIMEOUT:
+      RCLCPP_ERROR(this->get_logger(), "Request was timeout");
+      break;
+    default:
+      RCLCPP_ERROR(this->get_logger(), "Request was missed");
+      break;
+  }
+  return result_future.get();
+}
+
 /// @brief サーバーからのACCEPTの受信時に発火するコールバック
 /// サーバーのReceiveコールバックの戻り値を引数で受ける。
 /// @param response サーバーのReceiveの結果を格納したデータ
 void
-FibonacciActionClient::ReceiveRequest(const GoalHandle::SharedPtr& response)
+FibonacciActionClient::SentRequest(const GoalHandle::SharedPtr& response)
 {
   if (!response) {
     RCLCPP_ERROR(this->get_logger(), "Request was rejected by server");

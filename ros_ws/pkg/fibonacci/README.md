@@ -8,6 +8,82 @@
 $ ros2 pkg create fibonacci --license MIT
 ```
 
+## 成果物の確認
+
+> 独自のモノだけ記載。  
+> ROSが自動で作成する成果物に関しては原則省略とする。
+
+```bash
+ros_ws/
+├ build/
+| └ fibonacci/
+|   ├ fibonacci_action_client_node*
+|   ├ fibonacci_service_client_node*
+|   ├ libfibonacci_action_client.so
+|   ├ libfibonacci_action_server.so
+|   ├ libfibonacci_service_client.so
+|   └ libfibonacci_service_server.so
+|
+└ install/
+  └ fibonacci/
+    ├ include/
+    | └ fibonacci/
+    |   └ fibonacci/
+    |     ├ action_client.hpp
+    |     ├ action_server.hpp
+    |     ├ service_client.hpp
+    |     ├ service_server.hpp
+    |     └ visibility_control.h
+    ├ lib/
+    | ├ fibonacci/
+    | | ├ fibonacci_action_client_node*
+    | | └ fibonacci_service_client_node*
+    | ├ libfibonacci_action_client.so
+    | ├ libfibonacci_action_server.so
+    | ├ libfibonacci_service_client.so
+    | └ libfibonacci_service_server.so
+    └ share/
+```
+
+## 通信実行方法
+
+### サーバーの起動
+
+```console
+$ ros2 launch server_launch.yaml
+```
+
+### サービス通信
+
+```console
+$ ros2 run fibonacci fibonacci_service_client_node
+[INFO] [1722153225.881993842] [fibonacci_service_client_node]: Sending request
+```
+
+### アクション通信
+
+> サーバー側はコンポーネント実装のため同じバイナリ
+
+```console
+$ ros2 run fibonacci fibonacci_action_client_node -- 5
+[INFO] [1725045200.881663577] [rclcpp]: プロセスID: 85577
+[INFO] [1725045200.896723363] [fibonacci_action_client_node]: Sending request: 5
+[INFO] [1725045200.896952644] [fibonacci_action_client_node]: Waiting for accept
+[INFO] [1725045200.897489030] [fibonacci_action_client_node]: request was accepted
+[INFO] [1725045200.897512123] [fibonacci_action_client_node]: Request result
+[INFO] [1725045200.897596181] [fibonacci_action_client_node]: Wait for result
+[INFO] [1725045200.897945930] [fibonacci_action_client_node]: Received feedback
+[INFO] [1725045200.897981157] [fibonacci_action_client_node]: Next number in sequence received: 0 1 1
+[INFO] [1725045201.898061268] [fibonacci_action_client_node]: Received feedback
+[INFO] [1725045201.898116993] [fibonacci_action_client_node]: Next number in sequence received: 0 1 1 2
+[INFO] [1725045202.898045685] [fibonacci_action_client_node]: Received feedback
+[INFO] [1725045202.898107632] [fibonacci_action_client_node]: Next number in sequence received: 0 1 1 2 3
+[INFO] [1725045203.898066105] [fibonacci_action_client_node]: Received feedback
+[INFO] [1725045203.898120307] [fibonacci_action_client_node]: Next number in sequence received: 0 1 1 2 3 5
+[INFO] [1725045204.898333474] [fibonacci_action_client_node]: request was accepted
+[INFO] [1725045204.898394689] [fibonacci_action_client_node]: request was succeeded
+```
+
 ## デバッグ方法
 
 ### [launch編]((https://github.com/ms-iot/vscode-ros/blob/master/doc/debug-support.md#launch))
@@ -35,91 +111,3 @@ $ ros2 run fibonacci fibonacci_action_client_node
 ```
 
 ブレイクされれば完了。
-
-### 成果物の確認
-
-> 独自のモノだけ記載。  
-> ROSが自動で作成する成果物に関しては原則省略とする。
-
-```bash
-ros_ws/
-├ build/
-| └ fibonacci/
-|   ├ fibonacci_action_client_node*
-|   ├ fibonacci_service_client_node*
-|   ├ fibonacci_server_component_node*
-|   ├ libfibonacci_action_client.so
-|   ├ libfibonacci_action_server.so
-|   ├ libfibonacci_service_client.so
-|   └ libfibonacci_service_server.so
-|
-└ install/
-  └ fibonacci/
-    ├ include/
-    | └ fibonacci/
-    |   └ fibonacci/
-    |     ├ action_client.hpp
-    |     ├ action_server.hpp
-    |     ├ service_client.hpp
-    |     ├ service_server.hpp
-    |     └ visibility_control.h
-    ├ lib/
-    | ├ fibonacci/
-    | | ├ fibonacci_action_client_node*
-    | | ├ fibonacci_service_client_node*
-    | | └ fibonacci_server_component_node*
-    | ├ libfibonacci_action_client.so
-    | ├ libfibonacci_action_server.so
-    | ├ libfibonacci_service_client.so
-    | └ libfibonacci_service_server.so
-    └ share/
-```
-
-## 通信実行方法
-
-### サービス通信
-
-```console
-$ ros2 run fibonacci fibonacci_server_component_node
-```
-
-```console
-$ ros2 run fibonacci fibonacci_service_client_node
-[INFO] [1722153225.881993842] [fibonacci_service_client_node]: Sending request
-```
-
-### アクション通信
-
-> サーバー側はコンポーネント実装のため同じバイナリ
-
-```console
-$ ros2 run fibonacci fibonacci_server_component_node
-[INFO] [1722048831.388800882] [fibonacci_action_server_node]: Received goal request with order 10
-[INFO] [1722048831.389373052] [fibonacci_action_server_node]: Executing goal
-[INFO] [1722048831.389648572] [fibonacci_action_server_node]: Publish feedback
-[INFO] [1722048832.389698197] [fibonacci_action_server_node]: Publish feedback
-[INFO] [1722048833.389715935] [fibonacci_action_server_node]: Publish feedback
-[INFO] [1722048834.389649130] [fibonacci_action_server_node]: Publish feedback
-[INFO] [1722048835.389685327] [fibonacci_action_server_node]: Publish feedback
-[INFO] [1722048836.389709750] [fibonacci_action_server_node]: Publish feedback
-[INFO] [1722048837.389657990] [fibonacci_action_server_node]: Publish feedback
-[INFO] [1722048838.389709553] [fibonacci_action_server_node]: Publish feedback
-[INFO] [1722048839.389713237] [fibonacci_action_server_node]: Publish feedback
-[INFO] [1722048840.389877511] [fibonacci_action_server_node]: Goal succeeded
-```
-
-```console
-$ ros2 run fibonacci fibonacci_action_client_node
-[INFO] [1722048831.388202250] [fibonacci_action_client_node]: Sending goal
-[INFO] [1722048831.389205866] [fibonacci_action_client_node]: Goal accepted by server, waiting for result
-[INFO] [1722048831.389771564] [fibonacci_action_client_node]: Next number in sequence received: 0 1 1
-[INFO] [1722048832.389847440] [fibonacci_action_client_node]: Next number in sequence received: 0 1 1 2
-[INFO] [1722048833.389886039] [fibonacci_action_client_node]: Next number in sequence received: 0 1 1 2 3
-[INFO] [1722048834.389800860] [fibonacci_action_client_node]: Next number in sequence received: 0 1 1 2 3 5
-[INFO] [1722048835.389853749] [fibonacci_action_client_node]: Next number in sequence received: 0 1 1 2 3 5 8
-[INFO] [1722048836.389883712] [fibonacci_action_client_node]: Next number in sequence received: 0 1 1 2 3 5 8 13
-[INFO] [1722048837.389833380] [fibonacci_action_client_node]: Next number in sequence received: 0 1 1 2 3 5 8 13 21
-[INFO] [1722048838.389881988] [fibonacci_action_client_node]: Next number in sequence received: 0 1 1 2 3 5 8 13 21 34
-[INFO] [1722048839.389883720] [fibonacci_action_client_node]: Next number in sequence received: 0 1 1 2 3 5 8 13 21 34 55
-[INFO] [1722048840.390125752] [fibonacci_action_client_node]: Result received: 0 1 1 2 3 5 8 13 21 34 55
-```
