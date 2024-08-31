@@ -5,8 +5,7 @@
 namespace fibonacci {
 /// @brief コンストラクタ
 /// @param options ROS2のノード設定
-ServiceClient::ServiceClient(
-  const rclcpp::NodeOptions& options)
+ServiceClient::ServiceClient(const rclcpp::NodeOptions& options)
   : Node(node_name, options)
   , dest_server_name(ServiceServer::server_name)
 {
@@ -36,7 +35,14 @@ ServiceClient::send()
   request->order = 10;
 
   RCLCPP_INFO(this->get_logger(), "Sending request");
-#if 1
+#ifdef ENABLE_CALLBACK
+  // async_send_request内で以下のことが実行されているため実装不要
+  // rclcpp::FutureReturnCode::SUCCESSなどのチェック
+  auto result = client->async_send_request(request, [this](auto future_result) {
+    auto result = future_result.get();
+    RCLCPP_INFO_STREAM(this->get_logger(), "Result received: " << *result);
+  });
+#else
   auto future_result = client->async_send_request(request);
   RCLCPP_INFO(this->get_logger(), "Waiting for response");
   // TODO: Segmentation faultの発生を確認
@@ -59,12 +65,6 @@ ServiceClient::send()
   }
   auto result = future_result.get();
   RCLCPP_INFO_STREAM(this->get_logger(), "Result received: " << *result);
-#else
-  auto result = client->async_send_request(
-    request, [this](rclcpp::Client<Msg>::SharedFuture future) {
-      auto result = future_result.get();
-      RCLCPP_INFO_STREAM(this->get_logger(), "Result received: " << *result);
-    });
 #endif
 }
 } // namespace fibonacci

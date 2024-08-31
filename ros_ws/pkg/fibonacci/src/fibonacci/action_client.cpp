@@ -17,10 +17,12 @@ ActionClient::ActionClient(const rclcpp::NodeOptions& options)
   client = rclcpp_action::create_client<Msg>(this, dest_server_name);
   send_options.feedback_callback =
     std::bind(&ActionClient::ReceiveFeedback, this, _1, _2);
-  // send_options.goal_response_callback =
-  //   std::bind(&ActionClient::SentRequest, this, _1);
-  // send_options.result_callback =
-  //   std::bind(&ActionClient::ReceiveResult, this, _1);
+#ifdef ENABLE_CALLBACK
+  send_options.goal_response_callback =
+    std::bind(&ActionClient::SentRequest, this, _1);
+  send_options.result_callback =
+    std::bind(&ActionClient::ReceiveResult, this, _1);
+#endif
 }
 
 /// @brief サーバーへ送信する関数
@@ -113,6 +115,10 @@ ActionClient::ReceiveResponse(GoalHandle::SharedPtr goal_handle)
 
 /// @brief サーバーからのACCEPTの受信時に発火するコールバック
 /// サーバーのReceiveコールバックの戻り値を引数で受ける。
+/// SendRequest()の後半部分に相当する処理である。
+/// rclcpp::spin_until_future_complete()は内部で実行される。
+/// そのためコールバックによる実装では以下の処理は不要であり、不可能である。
+/// - rclcpp::FutureReturnCodeなどのチェック
 /// @param response サーバーのReceiveの結果を格納したデータ
 void
 ActionClient::SentRequest(const GoalHandle::SharedPtr& response)
@@ -148,6 +154,10 @@ ActionClient::ReceiveFeedback(GoalHandle::SharedPtr goal_handle,
 }
 
 /// @brief リザルト受信時に発火するコールバック
+/// ReceiveResponse()の後半部分に相当する処理である。
+/// rclcpp::spin_until_future_complete()は内部で実行される。
+/// そのためコールバックによる実装では以下の処理は不要であり、不可能である。
+/// - rclcpp::FutureReturnCodeなどのチェック
 /// @param result リザルト
 void
 ActionClient::ReceiveResult(const GoalHandle::WrappedResult& result)
