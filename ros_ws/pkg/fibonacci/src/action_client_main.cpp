@@ -17,8 +17,8 @@ main(int argc, char** argv)
   rclcpp::init(argc, argv);
   pid_t pid = getpid();
   RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "プロセスID: %d", pid);
-  auto cli = std::make_shared<fibonacci::FibonacciActionClient>();
-  auto goal = fibonacci::FibonacciActionClient::Msg::Goal();
+  auto cli = std::make_shared<fibonacci::ActionClient>();
+  auto goal = fibonacci::ActionClient::Msg::Goal();
 
   try {
     std::string arg1(argv[1]);

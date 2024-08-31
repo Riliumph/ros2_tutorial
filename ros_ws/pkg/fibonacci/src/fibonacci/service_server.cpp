@@ -5,22 +5,21 @@
 namespace fibonacci {
 /// @brief コンストラクタ
 /// @param options ROS2のノード設定
-FibonacciServiceServer::FibonacciServiceServer(
-  const rclcpp::NodeOptions& options)
+ServiceServer::ServiceServer(const rclcpp::NodeOptions& options)
   : Node(node_name, options)
 {
   using namespace std::placeholders;
   RCLCPP_DEBUG(this->get_logger(), "Establish Server");
   server = this->create_service<Msg>(
-    server_name, std::bind(&FibonacciServiceServer::execute, this, _1, _2));
+    server_name, std::bind(&ServiceServer::execute, this, _1, _2));
 }
 
 /// @brief サービス実行関数
 /// @param request リクエスト情報
 /// @param response レスポンス情報
 void
-FibonacciServiceServer::execute(const std::shared_ptr<Msg::Request> request,
-                                std::shared_ptr<Msg::Response> response)
+ServiceServer::execute(const std::shared_ptr<Msg::Request> request,
+                       std::shared_ptr<Msg::Response> response)
 {
   RCLCPP_INFO(this->get_logger(), "Executing fibonacci Service");
 
@@ -38,4 +37,4 @@ FibonacciServiceServer::execute(const std::shared_ptr<Msg::Request> request,
 } // namespace fibonacci
 
 #include "rclcpp_components/register_node_macro.hpp"
-RCLCPP_COMPONENTS_REGISTER_NODE(fibonacci::FibonacciServiceServer)
+RCLCPP_COMPONENTS_REGISTER_NODE(fibonacci::ServiceServer)

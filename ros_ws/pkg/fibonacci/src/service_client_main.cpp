@@ -7,7 +7,7 @@ int
 main(int argc, char** argv)
 {
   rclcpp::init(argc, argv);
-  auto cli = std::make_shared<fibonacci::FibonacciServiceClient>();
+  auto cli = std::make_shared<fibonacci::ServiceClient>();
   cli->send();
   rclcpp::shutdown();
   return 0;

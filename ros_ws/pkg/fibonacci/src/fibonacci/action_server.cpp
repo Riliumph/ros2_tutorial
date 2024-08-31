@@ -8,7 +8,7 @@
 namespace fibonacci {
 /// @brief コンストラクタ
 /// @param options ROS2のノード設定
-FibonacciActionServer::FibonacciActionServer(const rclcpp::NodeOptions& options)
+ActionServer::ActionServer(const rclcpp::NodeOptions& options)
   : Node(node_name, options)
 {
   using namespace std::placeholders;
@@ -16,15 +16,15 @@ FibonacciActionServer::FibonacciActionServer(const rclcpp::NodeOptions& options)
   server = rclcpp_action::create_server<Msg>(
     this,
     server_name,
-    std::bind(&FibonacciActionServer::Receive, this, _1, _2),
-    std::bind(&FibonacciActionServer::Cancel, this, _1),
-    std::bind(&FibonacciActionServer::Accept, this, _1));
+    std::bind(&ActionServer::Receive, this, _1, _2),
+    std::bind(&ActionServer::Cancel, this, _1),
+    std::bind(&ActionServer::Accept, this, _1));
 }
 
 /// @brief サーバーの業務処理
 /// @param request リクエスト情報
 void
-FibonacciActionServer::execute(const std::shared_ptr<GoalHandle> request)
+ActionServer::execute(const std::shared_ptr<GoalHandle> request)
 {
   RCLCPP_INFO(this->get_logger(), "Executing fibonacci service");
   rclcpp::Rate loop_rate(1);
@@ -65,8 +65,8 @@ FibonacciActionServer::execute(const std::shared_ptr<GoalHandle> request)
 /// @param request クライアントから受信したデータ
 /// @return 実行許可状態
 rclcpp_action::GoalResponse
-FibonacciActionServer::Receive(const rclcpp_action::GoalUUID& uuid,
-                               std::shared_ptr<const Msg::Goal> request)
+ActionServer::Receive(const rclcpp_action::GoalUUID& uuid,
+                      std::shared_ptr<const Msg::Goal> request)
 {
   RCLCPP_INFO(this->get_logger(), "Receive goal request");
   RCLCPP_INFO_STREAM(this->get_logger(), "Request ID: " << uuid);
@@ -83,7 +83,7 @@ FibonacciActionServer::Receive(const rclcpp_action::GoalUUID& uuid,
 /// @param request クライアントから受信したデータ
 /// @return キャンセル許可
 rclcpp_action::CancelResponse
-FibonacciActionServer::Cancel(std::shared_ptr<GoalHandle> request)
+ActionServer::Cancel(std::shared_ptr<GoalHandle> request)
 {
   RCLCPP_INFO(this->get_logger(), "Receive cancel request");
   (void)request;
@@ -93,16 +93,15 @@ FibonacciActionServer::Cancel(std::shared_ptr<GoalHandle> request)
 /// @brief 受信リクエスト受信時に発火するコールバック
 /// @param request クライアントから受信したデータ
 void
-FibonacciActionServer::Accept(std::shared_ptr<GoalHandle> request)
+ActionServer::Accept(std::shared_ptr<GoalHandle> request)
 {
   using namespace std::placeholders;
   RCLCPP_INFO(this->get_logger(), "Start execution of goal");
   // this needs to return quickly to avoid blocking the executor,
   // so spin up a new thread
-  std::thread{ std::bind(&FibonacciActionServer::execute, this, _1), request }
-    .detach();
+  std::thread{ std::bind(&ActionServer::execute, this, _1), request }.detach();
 }
 } // namespace fibonacci
 
 #include "rclcpp_components/register_node_macro.hpp"
-RCLCPP_COMPONENTS_REGISTER_NODE(fibonacci::FibonacciActionServer)
+RCLCPP_COMPONENTS_REGISTER_NODE(fibonacci::ActionServer)

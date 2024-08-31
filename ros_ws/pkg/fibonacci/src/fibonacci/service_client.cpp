@@ -5,10 +5,10 @@
 namespace fibonacci {
 /// @brief コンストラクタ
 /// @param options ROS2のノード設定
-FibonacciServiceClient::FibonacciServiceClient(
+ServiceClient::ServiceClient(
   const rclcpp::NodeOptions& options)
   : Node(node_name, options)
-  , dest_server_name(FibonacciServiceServer::server_name)
+  , dest_server_name(ServiceServer::server_name)
 {
   RCLCPP_DEBUG(this->get_logger(), "Establish Service Client");
   client = this->create_client<Msg>(dest_server_name);
@@ -22,7 +22,7 @@ FibonacciServiceClient::FibonacciServiceClient(
 /// 現状、外部から値を受ける仕組みはない。
 /// @return レスポンス情報
 void
-FibonacciServiceClient::send()
+ServiceClient::send()
 {
   this->timer_->cancel();
 
@@ -70,4 +70,4 @@ FibonacciServiceClient::send()
 } // namespace fibonacci
 
 // #include "rclcpp_components/register_node_macro.hpp"
-// RCLCPP_COMPONENTS_REGISTER_NODE(fibonacci::FibonacciServiceClient)
+// RCLCPP_COMPONENTS_REGISTER_NODE(fibonacci::ServiceClient)

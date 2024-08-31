@@ -13,7 +13,7 @@ namespace fibonacci {
 /// @brief N回までのFibonacci数を算出して返すサービス
 /// Resultで指定された回数場のFibonacci数列を返却する
 /// Feedbackとして一回計算がされるごとに途中経過も
-class FibonacciActionServer : public rclcpp::Node
+class ActionServer : public rclcpp::Node
 {
 public:
   using Msg = fibonacci_msg::action::Fibonacci;
@@ -24,7 +24,7 @@ public:
   static constexpr const char* server_name = "fibonacci_action_server";
 
 public:
-  FIBONACCI_PUBLIC explicit FibonacciActionServer(
+  FIBONACCI_PUBLIC explicit ActionServer(
     const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:

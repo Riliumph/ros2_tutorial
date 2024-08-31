@@ -13,7 +13,7 @@
 
 namespace fibonacci {
 /// @brief Fibonacci数を算出して返すサービスサーバーへ通信するクライアント
-class FibonacciServiceClient : public rclcpp::Node
+class ServiceClient : public rclcpp::Node
 {
 public:
   using Msg = fibonacci_msg::srv::Fibonacci;
@@ -23,7 +23,7 @@ public:
   static constexpr const char* client_name = "fibonacci_service_client";
 
 public:
-  FIBONACCI_PUBLIC explicit FibonacciServiceClient(
+  FIBONACCI_PUBLIC explicit ServiceClient(
     const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
   void send();
 

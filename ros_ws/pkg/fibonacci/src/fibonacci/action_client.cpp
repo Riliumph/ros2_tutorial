@@ -8,26 +8,26 @@
 namespace fibonacci {
 /// @brief コンストラクタ
 /// @param options ROS2のノード設定
-FibonacciActionClient::FibonacciActionClient(const rclcpp::NodeOptions& options)
+ActionClient::ActionClient(const rclcpp::NodeOptions& options)
   : Node(node_name, options)
-  , dest_server_name(FibonacciActionServer::server_name)
+  , dest_server_name(ActionServer::server_name)
 {
   using namespace std::placeholders;
   RCLCPP_DEBUG(this->get_logger(), "Establish Client");
   client = rclcpp_action::create_client<Msg>(this, dest_server_name);
   send_options.feedback_callback =
-    std::bind(&FibonacciActionClient::ReceiveFeedback, this, _1, _2);
+    std::bind(&ActionClient::ReceiveFeedback, this, _1, _2);
   // send_options.goal_response_callback =
-  //   std::bind(&FibonacciActionClient::SentRequest, this, _1);
+  //   std::bind(&ActionClient::SentRequest, this, _1);
   // send_options.result_callback =
-  //   std::bind(&FibonacciActionClient::ReceiveResult, this, _1);
+  //   std::bind(&ActionClient::ReceiveResult, this, _1);
 }
 
 /// @brief サーバーへ送信する関数
 /// @param request 送信するゴール情報
 /// @return レスポンス情報
-std::optional<FibonacciActionClient::GoalHandle::WrappedResult>
-FibonacciActionClient::Send(Msg::Goal request)
+std::optional<ActionClient::GoalHandle::WrappedResult>
+ActionClient::Send(Msg::Goal request)
 {
   if (!client->wait_for_action_server()) {
     RCLCPP_ERROR(this->get_logger(),
@@ -48,7 +48,7 @@ FibonacciActionClient::Send(Msg::Goal request)
 /// @brief アクションサーバーに処理の中止を要求する
 /// @param request 中止するリクエストを特定する情報
 void
-FibonacciActionClient::Cancel(const GoalHandle::SharedPtr& request)
+ActionClient::Cancel(const GoalHandle::SharedPtr& request)
 {
   client->async_cancel_goal(request);
   // auto result_future = client->async_get_result(goal_handle);
@@ -58,8 +58,8 @@ FibonacciActionClient::Cancel(const GoalHandle::SharedPtr& request)
 /// @brief リクエストの送信を行う
 /// @param request サーバーへ送信する情報
 /// @return 受信時に使うハンドル（ID）
-FibonacciActionClient::GoalHandle::SharedPtr
-FibonacciActionClient::SendRequest(Msg::Goal request)
+ActionClient::GoalHandle::SharedPtr
+ActionClient::SendRequest(Msg::Goal request)
 {
   RCLCPP_INFO_STREAM(this->get_logger(), "Sending request: " << request);
   auto goal_handle_future = client->async_send_goal(request, send_options);
@@ -86,8 +86,8 @@ FibonacciActionClient::SendRequest(Msg::Goal request)
 /// @brief レスポンスを受信する処理
 /// @param goal_handle サーバーにリクエストを特定させるためのハンドル（ID）
 /// @return
-FibonacciActionClient::GoalHandle::WrappedResult
-FibonacciActionClient::ReceiveResponse(GoalHandle::SharedPtr goal_handle)
+ActionClient::GoalHandle::WrappedResult
+ActionClient::ReceiveResponse(GoalHandle::SharedPtr goal_handle)
 {
   RCLCPP_INFO(this->get_logger(), "Request result");
   auto result_future = client->async_get_result(goal_handle);
@@ -115,7 +115,7 @@ FibonacciActionClient::ReceiveResponse(GoalHandle::SharedPtr goal_handle)
 /// サーバーのReceiveコールバックの戻り値を引数で受ける。
 /// @param response サーバーのReceiveの結果を格納したデータ
 void
-FibonacciActionClient::SentRequest(const GoalHandle::SharedPtr& response)
+ActionClient::SentRequest(const GoalHandle::SharedPtr& response)
 {
   if (!response) {
     RCLCPP_ERROR(this->get_logger(), "Request was rejected by server");
@@ -128,9 +128,8 @@ FibonacciActionClient::SentRequest(const GoalHandle::SharedPtr& response)
 /// @param goal_handle リクエストを特定する情報
 /// @param response フィードバックとして受け取るレスポンス情報
 void
-FibonacciActionClient::ReceiveFeedback(
-  GoalHandle::SharedPtr goal_handle,
-  const Msg::Feedback::ConstSharedPtr response)
+ActionClient::ReceiveFeedback(GoalHandle::SharedPtr goal_handle,
+                              const Msg::Feedback::ConstSharedPtr response)
 {
   RCLCPP_INFO(this->get_logger(), "Received feedback");
   RCLCPP_INFO_STREAM(this->get_logger(),
@@ -151,7 +150,7 @@ FibonacciActionClient::ReceiveFeedback(
 /// @brief リザルト受信時に発火するコールバック
 /// @param result リザルト
 void
-FibonacciActionClient::ReceiveResult(const GoalHandle::WrappedResult& result)
+ActionClient::ReceiveResult(const GoalHandle::WrappedResult& result)
 {
   switch (result.code) {
     case rclcpp_action::ResultCode::SUCCEEDED:
@@ -178,4 +177,4 @@ FibonacciActionClient::ReceiveResult(const GoalHandle::WrappedResult& result)
 } // namespace fibonacci
 
 #include "rclcpp_components/register_node_macro.hpp"
-RCLCPP_COMPONENTS_REGISTER_NODE(fibonacci::FibonacciActionClient)
+RCLCPP_COMPONENTS_REGISTER_NODE(fibonacci::ActionClient)
