@@ -7,9 +7,9 @@ launch:
       composable_node:
         - pkg: "fibonacci"
           # rclcpp_components_register_nodesで登録したクラス名を指定する
-          plugin: "fibonacci::FibonacciActionServer"
+          plugin: "fibonacci::ActionServer"
           name: "fibonacci_action_server"
         - pkg: "fibonacci"
-          plugin: "fibonacci::FibonacciServiceServer"
+          plugin: "fibonacci::ServiceServer"
           name: "fibonacci_service_server"
 

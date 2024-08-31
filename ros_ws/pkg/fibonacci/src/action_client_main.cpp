@@ -27,7 +27,7 @@ main(int argc, char** argv)
     if (!response) {
       RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "failed to send");
       rclcpp::shutdown();
-      return;
+      return -1;
     }
     switch (response->code) {
       case rclcpp_action::ResultCode::SUCCEEDED:
