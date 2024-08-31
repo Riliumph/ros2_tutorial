@@ -57,7 +57,6 @@ $ ros2 launch server_launch.yaml
 
 ```console
 $ ros2 run fibonacci fibonacci_service_client_node
-[INFO] [1722153225.881993842] [fibonacci_service_client_node]: Sending request
 ```
 
 ### アクション通信
@@ -66,22 +65,6 @@ $ ros2 run fibonacci fibonacci_service_client_node
 
 ```console
 $ ros2 run fibonacci fibonacci_action_client_node -- 5
-[INFO] [1725045200.881663577] [rclcpp]: プロセスID: 85577
-[INFO] [1725045200.896723363] [fibonacci_action_client_node]: Sending request: 5
-[INFO] [1725045200.896952644] [fibonacci_action_client_node]: Waiting for accept
-[INFO] [1725045200.897489030] [fibonacci_action_client_node]: request was accepted
-[INFO] [1725045200.897512123] [fibonacci_action_client_node]: Request result
-[INFO] [1725045200.897596181] [fibonacci_action_client_node]: Wait for result
-[INFO] [1725045200.897945930] [fibonacci_action_client_node]: Received feedback
-[INFO] [1725045200.897981157] [fibonacci_action_client_node]: Next number in sequence received: 0 1 1
-[INFO] [1725045201.898061268] [fibonacci_action_client_node]: Received feedback
-[INFO] [1725045201.898116993] [fibonacci_action_client_node]: Next number in sequence received: 0 1 1 2
-[INFO] [1725045202.898045685] [fibonacci_action_client_node]: Received feedback
-[INFO] [1725045202.898107632] [fibonacci_action_client_node]: Next number in sequence received: 0 1 1 2 3
-[INFO] [1725045203.898066105] [fibonacci_action_client_node]: Received feedback
-[INFO] [1725045203.898120307] [fibonacci_action_client_node]: Next number in sequence received: 0 1 1 2 3 5
-[INFO] [1725045204.898333474] [fibonacci_action_client_node]: request was accepted
-[INFO] [1725045204.898394689] [fibonacci_action_client_node]: request was succeeded
 ```
 
 ## デバッグ方法
