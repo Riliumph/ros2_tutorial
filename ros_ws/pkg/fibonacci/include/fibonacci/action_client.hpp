@@ -33,7 +33,7 @@ public:
 private:
   rclcpp_action::Client<Msg>::SharedPtr client;
   rclcpp::TimerBase::SharedPtr timer_;
-  std::string dest_server_name;
+  std::string dest_service_name;
   rclcpp_action::Client<Msg>::SendGoalOptions send_options;
 
 private:

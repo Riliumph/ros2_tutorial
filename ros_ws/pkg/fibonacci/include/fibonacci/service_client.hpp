@@ -30,7 +30,7 @@ public:
 private:
   rclcpp::Client<Msg>::SharedPtr client;
   rclcpp::TimerBase::SharedPtr timer_;
-  std::string dest_server_name;
+  std::string dest_service_name;
 };
 
 } // namespace fibonacci

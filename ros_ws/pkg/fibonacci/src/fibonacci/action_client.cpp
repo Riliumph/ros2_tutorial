@@ -10,11 +10,11 @@ namespace fibonacci {
 /// @param options ROS2のノード設定
 ActionClient::ActionClient(const rclcpp::NodeOptions& options)
   : Node(node_name, options)
-  , dest_server_name(ActionServer::server_name)
+  , dest_service_name(ActionServer::service_name)
 {
   using namespace std::placeholders;
   RCLCPP_DEBUG(this->get_logger(), "Establish Client");
-  client = rclcpp_action::create_client<Msg>(this, dest_server_name);
+  client = rclcpp_action::create_client<Msg>(this, dest_service_name);
   send_options.feedback_callback =
     std::bind(&ActionClient::ReceiveFeedback, this, _1, _2);
 #ifdef ENABLE_CALLBACK

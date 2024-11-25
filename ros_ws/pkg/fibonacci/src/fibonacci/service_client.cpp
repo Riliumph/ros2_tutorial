@@ -7,10 +7,10 @@ namespace fibonacci {
 /// @param options ROS2のノード設定
 ServiceClient::ServiceClient(const rclcpp::NodeOptions& options)
   : Node(node_name, options)
-  , dest_server_name(ServiceServer::server_name)
+  , dest_service_name(ServiceServer::service_name)
 {
   RCLCPP_DEBUG(this->get_logger(), "Establish Service Client");
-  client = this->create_client<Msg>(dest_server_name);
+  client = this->create_client<Msg>(dest_service_name);
 
   auto timer_callback_lambda = [this]() { return this->send(); };
   timer_ = this->create_wall_timer(std::chrono::milliseconds(500),

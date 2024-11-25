@@ -15,8 +15,8 @@ public:
   using Msg = fibonacci_msg::srv::Fibonacci;
 
 public:
-  static constexpr const char* node_name = "fibonacci_service_server_node";
-  static constexpr const char* server_name = "fibonacci_service_server";
+  static constexpr const char* node_name = "fibonacci_server_node";
+  static constexpr const char* service_name = "fibonacci_service";
 
 public:
   FIBONACCI_PUBLIC explicit ServiceServer(

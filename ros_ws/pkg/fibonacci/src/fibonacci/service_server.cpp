@@ -11,7 +11,7 @@ ServiceServer::ServiceServer(const rclcpp::NodeOptions& options)
   using namespace std::placeholders;
   RCLCPP_DEBUG(this->get_logger(), "Establish Server");
   server = this->create_service<Msg>(
-    server_name, std::bind(&ServiceServer::execute, this, _1, _2));
+    service_name, std::bind(&ServiceServer::execute, this, _1, _2));
 }
 
 /// @brief サービス実行関数

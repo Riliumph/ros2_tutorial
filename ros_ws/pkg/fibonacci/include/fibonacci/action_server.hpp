@@ -21,7 +21,7 @@ public:
 
 public:
   static constexpr const char* node_name = "fibonacci_action_server_node";
-  static constexpr const char* server_name = "fibonacci_action_server";
+  static constexpr const char* service_name = "fibonacci_action_service";
 
 public:
   FIBONACCI_PUBLIC explicit ActionServer(

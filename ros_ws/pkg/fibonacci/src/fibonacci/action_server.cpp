@@ -15,7 +15,7 @@ ActionServer::ActionServer(const rclcpp::NodeOptions& options)
   RCLCPP_DEBUG(this->get_logger(), "Establish Server");
   server = rclcpp_action::create_server<Msg>(
     this,
-    server_name,
+    service_name,
     std::bind(&ActionServer::Receive, this, _1, _2),
     std::bind(&ActionServer::Cancel, this, _1),
     std::bind(&ActionServer::Accept, this, _1));
