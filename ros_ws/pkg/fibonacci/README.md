@@ -8,6 +8,12 @@
 $ ros2 pkg create fibonacci --license MIT
 ```
 
+## ビルド方法
+
+```console
+$ colcon build --packages-up-to fibonacci
+```
+
 ## 成果物の確認
 
 > 独自のモノだけ記載。  
@@ -94,3 +100,8 @@ $ ros2 run fibonacci fibonacci_action_client_node
 ```
 
 ブレイクされれば完了。
+
+## 参考
+
+- [Writing an action server and client (C++)](https://docs.ros.org/en/jazzy/Tutorials/Intermediate/Writing-an-Action-Server-Client/Cpp.html#writing-an-action-server-and-client-c)
+- [Writing a simple service and client (C++)](https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Cpp-Service-And-Client.html#writing-a-simple-service-and-client-c)
