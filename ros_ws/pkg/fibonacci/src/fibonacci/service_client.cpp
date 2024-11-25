@@ -15,6 +15,13 @@ ServiceClient::ServiceClient(const rclcpp::NodeOptions& options)
   auto timer_callback_lambda = [this]() { return this->send(); };
   timer_ = this->create_wall_timer(std::chrono::milliseconds(500),
                                    timer_callback_lambda);
+  RCLCPP_INFO_STREAM(this->get_logger(), this->get_name() << " created");
+}
+
+/// @brief デストラクタ
+ServiceClient::~ServiceClient()
+{
+  RCLCPP_INFO_STREAM(this->get_logger(), this->get_name() << " finalized");
 }
 
 /// @brief サーバーへ送信する関数

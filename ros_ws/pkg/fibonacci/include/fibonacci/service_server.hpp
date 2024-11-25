@@ -21,6 +21,7 @@ public:
 public:
   FIBONACCI_PUBLIC explicit ServiceServer(
     const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  ~ServiceServer();
 
 private:
   rclcpp::Service<Msg>::SharedPtr server;

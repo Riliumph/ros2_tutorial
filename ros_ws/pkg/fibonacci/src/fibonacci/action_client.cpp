@@ -23,6 +23,13 @@ ActionClient::ActionClient(const rclcpp::NodeOptions& options)
   send_options.result_callback =
     std::bind(&ActionClient::ReceiveResult, this, _1);
 #endif
+  RCLCPP_INFO_STREAM(this->get_logger(), this->get_name() << " created");
+}
+
+/// @brief デストラクタ
+ActionClient::~ActionClient()
+{
+  RCLCPP_INFO_STREAM(this->get_logger(), this->get_name() << " finalized");
 }
 
 /// @brief サーバーへ送信する関数

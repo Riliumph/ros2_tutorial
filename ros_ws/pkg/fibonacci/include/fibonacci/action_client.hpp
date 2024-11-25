@@ -27,6 +27,8 @@ public:
 public:
   FIBONACCI_PUBLIC explicit ActionClient(
     const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  ~ActionClient();
+
   std::optional<GoalHandle::WrappedResult> Send(Msg::Goal goal);
   void Cancel(const GoalHandle::SharedPtr& request);
 

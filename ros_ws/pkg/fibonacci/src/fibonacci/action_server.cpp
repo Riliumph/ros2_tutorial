@@ -19,6 +19,13 @@ ActionServer::ActionServer(const rclcpp::NodeOptions& options)
     std::bind(&ActionServer::Receive, this, _1, _2),
     std::bind(&ActionServer::Cancel, this, _1),
     std::bind(&ActionServer::Accept, this, _1));
+  RCLCPP_INFO_STREAM(this->get_logger(), this->get_name() << " created");
+}
+
+/// @brief デストラクタ
+ActionServer::~ActionServer()
+{
+  RCLCPP_INFO_STREAM(this->get_logger(), this->get_name() << " finalized");
 }
 
 /// @brief サーバーの業務処理

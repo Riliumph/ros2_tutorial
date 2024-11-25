@@ -25,6 +25,8 @@ public:
 public:
   FIBONACCI_PUBLIC explicit ServiceClient(
     const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  ~ServiceClient();
+
   void send();
 
 private:

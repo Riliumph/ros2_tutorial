@@ -26,6 +26,7 @@ public:
 public:
   FIBONACCI_PUBLIC explicit ActionServer(
     const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  ~ActionServer();
 
 private:
   rclcpp_action::Server<Msg>::SharedPtr server;

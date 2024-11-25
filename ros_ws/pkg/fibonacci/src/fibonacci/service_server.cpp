@@ -12,6 +12,13 @@ ServiceServer::ServiceServer(const rclcpp::NodeOptions& options)
   RCLCPP_DEBUG(this->get_logger(), "Establish Server");
   server = this->create_service<Msg>(
     service_name, std::bind(&ServiceServer::execute, this, _1, _2));
+  RCLCPP_INFO_STREAM(this->get_logger(), this->get_name() << " created");
+}
+
+/// @brief デストラクタ
+ServiceServer::~ServiceServer()
+{
+  RCLCPP_INFO_STREAM(this->get_logger(), this->get_name() << " finalized");
 }
 
 /// @brief サービス実行関数
