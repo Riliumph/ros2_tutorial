@@ -1,0 +1,14 @@
+launch:
+  - node_container:
+      pkg: "rclcpp_components"
+      exec: "component_container"
+      name: "greet_composable_node"
+      namespace: ""
+      composable_node:
+        - pkg: "greet"
+          plugin: "greet::Publisher"
+          name: "talker_node"
+        - pkg: "greet"
+          plugin: "greet::Subscriber"
+          name: "listener_node"
+
