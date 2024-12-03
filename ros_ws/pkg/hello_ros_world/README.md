@@ -17,7 +17,7 @@ $ ros2 pkg create --build-type ament_cmake --license MIT hello_ros_world
 ## ビルド方法
 
 ```console
- $ colcon build
+$ colcon build --packages-up-to hello_ros_world
 Starting >>> hello_ros_world
 Finished <<< hello_ros_world [4.53s]
 
