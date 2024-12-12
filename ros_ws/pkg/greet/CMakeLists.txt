@@ -30,6 +30,7 @@ target_compile_features(${PUB_LIB}
   PUBLIC c_std_99 cxx_std_17 # Require C99 and C++17
 )
 target_compile_definitions(${PUB_LIB}
+  # visibility_control.h用
   PRIVATE "GREET_BUILDING_LIBRARY"
 )
 ament_target_dependencies(${PUB_LIB}
