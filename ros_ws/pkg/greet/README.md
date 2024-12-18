@@ -5,7 +5,7 @@
 ## ビルド方法
 
 ```console
-$ colcon build --packages-up-to greet
+$ colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Debug --packages-up-to greet
 ```
 
 ## 起動方法

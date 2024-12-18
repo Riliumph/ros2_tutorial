@@ -36,3 +36,9 @@ creating ./${your_package_name}/CMakeLists.txt
 ### maintainer
 
 maintainer項目のメールアドレスは`git`から[取得している](https://github.com/ros2/ros2cli/blob/a18bc6816ece36dad51a8ea5a2d7a216c473d477/ros2pkg/ros2pkg/verb/create.py#L109)。
+
+## 全パッケージのビルド
+
+```console
+$ colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Debug
+```

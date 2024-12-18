@@ -11,7 +11,7 @@ $ ros2 pkg create fibonacci --license MIT
 ## ビルド方法
 
 ```console
-$ colcon build --packages-up-to fibonacci
+$ colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Debug --packages-up-to fibonacci
 ```
 
 ## 成果物の確認
@@ -93,6 +93,16 @@ F5や実行ボタンからデバッグを実行すると、以下の選択を迫
 
 C++を選択すると、アタッチするプロセスを選択する画面になる。  
 `fibonacci`などで検索し、アタッチしたいプロセス（`component_container`）を選択するとGDBが繋がる。  
+選択候補になるプロセスは、ROS2プロセスとノードプロセスがあるが、ノードプロセス(以下のコマンド例のPID: 14758)を選択すること。  
+ROS2プロセスにアタッチしてもROS2の管理処理を行っているだけで、独自コードは実行されていないのでブレイクされない。
+
+```console
+$ ps aux | grep fibonacci
+ubuntu   14738  0.3  0.7 1099528 79660 pts/3   Sl+  07:16   0:00 /usr/bin/python3 /opt/ros/jazzy/bin/ros2 launch pkg/fibonacci/launch/server_launch.yaml
+ubuntu   14758  0.0  0.3 754564 32020 pts/3    Sl+  07:16   0:00 /opt/ros/jazzy/lib/rclcpp_components/component_container --ros-args -r __node:=fibonacci_server_composable_node -r __ns:=/
+ubuntu   15874  0.0  0.0   4844  2160 pts/6    S+   07:18   0:00 grep --color=auto fibonacci
+```
+
 `FibonacciActionServer::execute`などにブレイクポイントを張り、以下のコマンドでクライアントを起動して通信する。
 
 ```console
