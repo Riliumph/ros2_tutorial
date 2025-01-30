@@ -39,8 +39,7 @@ std::optional<ActionClient::GoalHandle::WrappedResult>
 ActionClient::Send(Msg::Goal request)
 {
   if (!client->wait_for_action_server()) {
-    RCLCPP_ERROR(get_logger(),
-                 "Action server not available after waiting");
+    RCLCPP_ERROR(get_logger(), "Action server not available after waiting");
   }
   // コールバックのSentRequest()に相当する処理
   auto goal_handle = SendRequest(request);
@@ -73,8 +72,8 @@ ActionClient::SendRequest(Msg::Goal request)
   RCLCPP_INFO_STREAM(get_logger(), "Sending request: " << request);
   auto goal_handle_future = client->async_send_goal(request, send_options);
   RCLCPP_INFO(get_logger(), "Waiting for accept");
-  auto accepted = rclcpp::spin_until_future_complete(
-    get_node_base_interface(), goal_handle_future);
+  auto accepted = rclcpp::spin_until_future_complete(get_node_base_interface(),
+                                                     goal_handle_future);
   switch (accepted) {
     case rclcpp::FutureReturnCode::SUCCESS:
       RCLCPP_INFO(get_logger(), "Request was accepted");
@@ -101,8 +100,8 @@ ActionClient::ReceiveResponse(GoalHandle::SharedPtr goal_handle)
   RCLCPP_INFO(get_logger(), "Request result");
   auto result_future = client->async_get_result(goal_handle);
   RCLCPP_INFO(get_logger(), "Waiting for result");
-  auto response = rclcpp::spin_until_future_complete(
-    get_node_base_interface(), result_future);
+  auto response = rclcpp::spin_until_future_complete(get_node_base_interface(),
+                                                     result_future);
   switch (response) {
     case rclcpp::FutureReturnCode::SUCCESS:
       RCLCPP_INFO(get_logger(), "Request was succeeded");
@@ -153,8 +152,7 @@ ActionClient::ReceiveFeedback(GoalHandle::SharedPtr goal_handle,
                                  response->partial_sequence.end());
   if (max_it != response->partial_sequence.end()) {
     if (10 < *max_it) {
-      RCLCPP_INFO(get_logger(),
-                  "fibonacci support under 10. canceling...");
+      RCLCPP_INFO(get_logger(), "fibonacci support under 10. canceling...");
       Cancel(goal_handle);
     }
   }

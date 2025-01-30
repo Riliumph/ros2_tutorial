@@ -13,8 +13,8 @@ ServiceClient::ServiceClient(const rclcpp::NodeOptions& options)
   client = create_client<Msg>(dest_service_name);
 
   auto timer_callback_lambda = [this]() { return send(); };
-  timer_ = create_wall_timer(std::chrono::milliseconds(500),
-                                   timer_callback_lambda);
+  timer_ =
+    create_wall_timer(std::chrono::milliseconds(500), timer_callback_lambda);
   RCLCPP_INFO_STREAM(get_logger(), get_name() << " created");
 }
 
@@ -33,8 +33,7 @@ ServiceClient::send()
   timer_->cancel();
 
   if (!client->wait_for_service()) {
-    RCLCPP_ERROR(get_logger(),
-                 "Service server not available after waiting");
+    RCLCPP_ERROR(get_logger(), "Service server not available after waiting");
     rclcpp::shutdown();
   }
 
