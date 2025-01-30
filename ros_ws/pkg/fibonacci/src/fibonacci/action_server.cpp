@@ -12,20 +12,20 @@ ActionServer::ActionServer(const rclcpp::NodeOptions& options)
   : Node(node_name, options)
 {
   using namespace std::placeholders;
-  RCLCPP_DEBUG(this->get_logger(), "Establish Server");
+  RCLCPP_DEBUG(get_logger(), "Establish Server");
   server = rclcpp_action::create_server<Msg>(
     this,
     service_name,
     std::bind(&ActionServer::Receive, this, _1, _2),
     std::bind(&ActionServer::Cancel, this, _1),
     std::bind(&ActionServer::Accept, this, _1));
-  RCLCPP_INFO_STREAM(this->get_logger(), this->get_name() << " created");
+  RCLCPP_INFO_STREAM(get_logger(), get_name() << " created");
 }
 
 /// @brief デストラクタ
 ActionServer::~ActionServer()
 {
-  RCLCPP_INFO_STREAM(this->get_logger(), this->get_name() << " finalized");
+  RCLCPP_INFO_STREAM(get_logger(), get_name() << " finalized");
 }
 
 /// @brief サーバーの業務処理
@@ -33,7 +33,7 @@ ActionServer::~ActionServer()
 void
 ActionServer::execute(const std::shared_ptr<GoalHandle> request)
 {
-  RCLCPP_INFO(this->get_logger(), "Executing fibonacci service");
+  RCLCPP_INFO(get_logger(), "Executing fibonacci service");
   rclcpp::Rate loop_rate(1);
   const auto goal = request->get_goal();
   auto feedback = std::make_shared<Msg::Feedback>();
@@ -47,14 +47,14 @@ ActionServer::execute(const std::shared_ptr<GoalHandle> request)
     if (request->is_canceling()) {
       result->sequence = sequence;
       request->canceled(result);
-      RCLCPP_INFO(this->get_logger(), "Request was canceled");
+      RCLCPP_INFO(get_logger(), "Request was canceled");
       return;
     }
     // Update sequence
     sequence.push_back(sequence[i] + sequence[i - 1]);
     // Publish feedback
     request->publish_feedback(feedback);
-    RCLCPP_INFO_STREAM(this->get_logger(), "Publish feedback: " << *feedback);
+    RCLCPP_INFO_STREAM(get_logger(), "Publish feedback: " << *feedback);
 
     loop_rate.sleep();
   }
@@ -63,7 +63,7 @@ ActionServer::execute(const std::shared_ptr<GoalHandle> request)
   if (rclcpp::ok()) {
     result->sequence = sequence;
     request->succeed(result); // response
-    RCLCPP_INFO(this->get_logger(), "Request was succeeded");
+    RCLCPP_INFO(get_logger(), "Request was succeeded");
   }
 }
 
@@ -75,14 +75,14 @@ rclcpp_action::GoalResponse
 ActionServer::Receive(const rclcpp_action::GoalUUID& uuid,
                       std::shared_ptr<const Msg::Goal> request)
 {
-  RCLCPP_INFO(this->get_logger(), "Receive goal request");
-  RCLCPP_INFO_STREAM(this->get_logger(), "Request ID: " << uuid);
+  RCLCPP_INFO(get_logger(), "Receive goal request");
+  RCLCPP_INFO_STREAM(get_logger(), "Request ID: " << uuid);
 
   if (request->order < 0) {
-    RCLCPP_INFO(this->get_logger(), "Request was rejected");
+    RCLCPP_INFO(get_logger(), "Request was rejected");
     return rclcpp_action::GoalResponse::REJECT;
   }
-  RCLCPP_INFO(this->get_logger(), "Request was accepted");
+  RCLCPP_INFO(get_logger(), "Request was accepted");
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 
@@ -92,7 +92,7 @@ ActionServer::Receive(const rclcpp_action::GoalUUID& uuid,
 rclcpp_action::CancelResponse
 ActionServer::Cancel(std::shared_ptr<GoalHandle> request)
 {
-  RCLCPP_INFO(this->get_logger(), "Receive cancel request");
+  RCLCPP_INFO(get_logger(), "Receive cancel request");
   (void)request;
   return rclcpp_action::CancelResponse::ACCEPT;
 }
@@ -103,7 +103,7 @@ void
 ActionServer::Accept(std::shared_ptr<GoalHandle> request)
 {
   using namespace std::placeholders;
-  RCLCPP_INFO(this->get_logger(), "Start execution of goal");
+  RCLCPP_INFO(get_logger(), "Start execution of goal");
   // this needs to return quickly to avoid blocking the executor,
   // so spin up a new thread
   std::thread{ std::bind(&ActionServer::execute, this, _1), request }.detach();

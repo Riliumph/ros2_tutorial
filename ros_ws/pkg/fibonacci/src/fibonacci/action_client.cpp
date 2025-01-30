@@ -13,7 +13,7 @@ ActionClient::ActionClient(const rclcpp::NodeOptions& options)
   , dest_service_name(ActionServer::service_name)
 {
   using namespace std::placeholders;
-  RCLCPP_DEBUG(this->get_logger(), "Establish Client");
+  RCLCPP_DEBUG(get_logger(), "Establish Client");
   client = rclcpp_action::create_client<Msg>(this, dest_service_name);
   send_options.feedback_callback =
     std::bind(&ActionClient::ReceiveFeedback, this, _1, _2);
@@ -23,13 +23,13 @@ ActionClient::ActionClient(const rclcpp::NodeOptions& options)
   send_options.result_callback =
     std::bind(&ActionClient::ReceiveResult, this, _1);
 #endif
-  RCLCPP_INFO_STREAM(this->get_logger(), this->get_name() << " created");
+  RCLCPP_INFO_STREAM(get_logger(), get_name() << " created");
 }
 
 /// @brief デストラクタ
 ActionClient::~ActionClient()
 {
-  RCLCPP_INFO_STREAM(this->get_logger(), this->get_name() << " finalized");
+  RCLCPP_INFO_STREAM(get_logger(), get_name() << " finalized");
 }
 
 /// @brief サーバーへ送信する関数
@@ -39,13 +39,13 @@ std::optional<ActionClient::GoalHandle::WrappedResult>
 ActionClient::Send(Msg::Goal request)
 {
   if (!client->wait_for_action_server()) {
-    RCLCPP_ERROR(this->get_logger(),
+    RCLCPP_ERROR(get_logger(),
                  "Action server not available after waiting");
   }
   // コールバックのSentRequest()に相当する処理
   auto goal_handle = SendRequest(request);
   if (!goal_handle) {
-    RCLCPP_ERROR(this->get_logger(), "Request was rejected");
+    RCLCPP_ERROR(get_logger(), "Request was rejected");
     return std::nullopt;
   }
 
@@ -70,23 +70,23 @@ ActionClient::Cancel(const GoalHandle::SharedPtr& request)
 ActionClient::GoalHandle::SharedPtr
 ActionClient::SendRequest(Msg::Goal request)
 {
-  RCLCPP_INFO_STREAM(this->get_logger(), "Sending request: " << request);
+  RCLCPP_INFO_STREAM(get_logger(), "Sending request: " << request);
   auto goal_handle_future = client->async_send_goal(request, send_options);
-  RCLCPP_INFO(this->get_logger(), "Waiting for accept");
+  RCLCPP_INFO(get_logger(), "Waiting for accept");
   auto accepted = rclcpp::spin_until_future_complete(
-    this->get_node_base_interface(), goal_handle_future);
+    get_node_base_interface(), goal_handle_future);
   switch (accepted) {
     case rclcpp::FutureReturnCode::SUCCESS:
-      RCLCPP_INFO(this->get_logger(), "Request was accepted");
+      RCLCPP_INFO(get_logger(), "Request was accepted");
       break;
     case rclcpp::FutureReturnCode::INTERRUPTED:
-      RCLCPP_ERROR(this->get_logger(), "Request was interrupted");
+      RCLCPP_ERROR(get_logger(), "Request was interrupted");
       return nullptr;
     case rclcpp::FutureReturnCode::TIMEOUT:
-      RCLCPP_ERROR(this->get_logger(), "Request was timeout");
+      RCLCPP_ERROR(get_logger(), "Request was timeout");
       return nullptr;
     default:
-      RCLCPP_ERROR(this->get_logger(), "Request was missed");
+      RCLCPP_ERROR(get_logger(), "Request was missed");
       return nullptr;
   }
   return goal_handle_future.get();
@@ -98,23 +98,23 @@ ActionClient::SendRequest(Msg::Goal request)
 ActionClient::GoalHandle::WrappedResult
 ActionClient::ReceiveResponse(GoalHandle::SharedPtr goal_handle)
 {
-  RCLCPP_INFO(this->get_logger(), "Request result");
+  RCLCPP_INFO(get_logger(), "Request result");
   auto result_future = client->async_get_result(goal_handle);
-  RCLCPP_INFO(this->get_logger(), "Waiting for result");
+  RCLCPP_INFO(get_logger(), "Waiting for result");
   auto response = rclcpp::spin_until_future_complete(
-    this->get_node_base_interface(), result_future);
+    get_node_base_interface(), result_future);
   switch (response) {
     case rclcpp::FutureReturnCode::SUCCESS:
-      RCLCPP_INFO(this->get_logger(), "Request was succeeded");
+      RCLCPP_INFO(get_logger(), "Request was succeeded");
       break;
     case rclcpp::FutureReturnCode::INTERRUPTED:
-      RCLCPP_ERROR(this->get_logger(), "Request was interrupted");
+      RCLCPP_ERROR(get_logger(), "Request was interrupted");
       break;
     case rclcpp::FutureReturnCode::TIMEOUT:
-      RCLCPP_ERROR(this->get_logger(), "Request was timeout");
+      RCLCPP_ERROR(get_logger(), "Request was timeout");
       break;
     default:
-      RCLCPP_ERROR(this->get_logger(), "Request was missed");
+      RCLCPP_ERROR(get_logger(), "Request was missed");
       break;
   }
   return result_future.get();
@@ -131,9 +131,9 @@ void
 ActionClient::SentRequest(const GoalHandle::SharedPtr& response)
 {
   if (!response) {
-    RCLCPP_ERROR(this->get_logger(), "Request was rejected by server");
+    RCLCPP_ERROR(get_logger(), "Request was rejected by server");
   } else {
-    RCLCPP_INFO(this->get_logger(), "response was accepted by server");
+    RCLCPP_INFO(get_logger(), "response was accepted by server");
   }
 }
 
@@ -144,8 +144,8 @@ void
 ActionClient::ReceiveFeedback(GoalHandle::SharedPtr goal_handle,
                               const Msg::Feedback::ConstSharedPtr response)
 {
-  RCLCPP_INFO(this->get_logger(), "Received feedback");
-  RCLCPP_INFO_STREAM(this->get_logger(),
+  RCLCPP_INFO(get_logger(), "Received feedback");
+  RCLCPP_INFO_STREAM(get_logger(),
                      "Next number in sequence received: " << *response);
 
   // 10以上は大きすぎるので必要ない
@@ -153,7 +153,7 @@ ActionClient::ReceiveFeedback(GoalHandle::SharedPtr goal_handle,
                                  response->partial_sequence.end());
   if (max_it != response->partial_sequence.end()) {
     if (10 < *max_it) {
-      RCLCPP_INFO(this->get_logger(),
+      RCLCPP_INFO(get_logger(),
                   "fibonacci support under 10. canceling...");
       Cancel(goal_handle);
     }
@@ -171,24 +171,24 @@ ActionClient::ReceiveResult(const GoalHandle::WrappedResult& result)
 {
   switch (result.code) {
     case rclcpp_action::ResultCode::SUCCEEDED:
-      RCLCPP_INFO(this->get_logger(), "Request was succeeded");
+      RCLCPP_INFO(get_logger(), "Request was succeeded");
       break;
     case rclcpp_action::ResultCode::ABORTED:
-      RCLCPP_ERROR(this->get_logger(), "Request was aborted");
+      RCLCPP_ERROR(get_logger(), "Request was aborted");
       rclcpp::shutdown();
       return;
     case rclcpp_action::ResultCode::CANCELED:
-      RCLCPP_ERROR(this->get_logger(), "Request was canceled");
+      RCLCPP_ERROR(get_logger(), "Request was canceled");
       rclcpp::shutdown();
       return;
     default:
-      RCLCPP_ERROR(this->get_logger(),
+      RCLCPP_ERROR(get_logger(),
                    "unexpected return code(%d)",
                    static_cast<int8_t>(result.code));
       rclcpp::shutdown();
       return;
   }
-  RCLCPP_INFO_STREAM(this->get_logger(), "Result received: " << result.result);
+  RCLCPP_INFO_STREAM(get_logger(), "Result received: " << result.result);
   rclcpp::shutdown(); // rclcpp::spinの停止
 }
 } // namespace fibonacci
