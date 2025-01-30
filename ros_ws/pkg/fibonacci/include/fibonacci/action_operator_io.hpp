@@ -17,4 +17,24 @@ operator<<(std::ostream& os, const rclcpp_action::GoalUUID& uuid)
   return os;
 }
 
+std::ostream&
+operator<<(std::ostream& os, const rclcpp_action::ResultCode& code)
+{
+  switch (code) {
+    case rclcpp_action::ResultCode::SUCCEEDED:
+      os << "SUCCEEDED";
+      break;
+    case rclcpp_action::ResultCode::ABORTED:
+      os << "ABORTED";
+      break;
+    case rclcpp_action::ResultCode::CANCELED:
+      os << "CANCELED";
+      break;
+    default:
+      os << "UNKNOWN";
+      break;
+  }
+  return os;
+}
+
 #endif // FIBONACCI__ACTION_OPERATOR_IO_HPP_

@@ -3,7 +3,27 @@
 #include <functional>
 #include <sstream>
 // original
+#include "fibonacci/action_operator_io.hpp"
 #include "fibonacci/action_server.hpp"
+
+using namespace std::literals::chrono_literals;
+
+#define RCLCPP_INFO_S(stream_arg) RCLCPP_INFO_STREAM(get_logger(), stream_arg)
+#define RCLCPP_DEBUG_S(stream_arg) RCLCPP_DEBUG_STREAM(get_logger(), stream_arg)
+#define RCLCPP_WARN_S(stream_arg) RCLCPP_WARN_STREAM(get_logger(), stream_arg)
+#define RCLCPP_ERROR_S(stream_arg) RCLCPP_ERROR_STREAM(get_logger(), stream_arg)
+#define RCLCPP_FATAL_S(stream_arg) RCLCPP_FATAL_STREAM(get_logger(), stream_arg)
+
+#define REQ_DEBUG(uuid, stream_arg)                                            \
+  RCLCPP_DEBUG_STREAM(get_logger(), "[" << uuid << "] " stream_arg)
+#define REQ_INFO(uuid, stream_arg)                                             \
+  RCLCPP_INFO_STREAM(get_logger(), "[" << uuid << "] " stream_arg)
+#define REQ_WARN(uuid, stream_arg)                                             \
+  RCLCPP_WARN_STREAM(get_logger(), "[" << uuid << "] " stream_arg)
+#define REQ_ERROR(uuid, stream_arg)                                            \
+  RCLCPP_ERROR_STREAM(get_logger(), "[" << uuid << "] " stream_arg)
+#define REQ_FATAL(uuid, stream_arg)                                            \
+  RCLCPP_FATAL_STREAM(get_logger(), "[" << uuid << "] " stream_arg)
 
 namespace fibonacci {
 /// @brief コンストラクタ
@@ -47,6 +67,8 @@ ActionClient::Send(Msg::Goal request)
     RCLCPP_ERROR(get_logger(), "Request was rejected");
     return std::nullopt;
   }
+  auto gid = goal_handle->get_goal_id();
+  REQ_INFO(gid, "Request was accepted");
 
   // コールバックのReceiveResult()に相当する処理
   auto response = ReceiveResponse(goal_handle);
@@ -58,6 +80,8 @@ ActionClient::Send(Msg::Goal request)
 void
 ActionClient::Cancel(const GoalHandle::SharedPtr& request)
 {
+  auto gid = request->get_goal_id();
+  REQ_INFO(gid, "Request cancel");
   client->async_cancel_goal(request);
   // auto result_future = client->async_get_result(goal_handle);
   // のfuture-blockingが解除される
@@ -76,16 +100,16 @@ ActionClient::SendRequest(Msg::Goal request)
                                                      goal_handle_future);
   switch (accepted) {
     case rclcpp::FutureReturnCode::SUCCESS:
-      RCLCPP_INFO(get_logger(), "Request was accepted");
+      REQ_INFO("NULL", "Request was accepted");
       break;
     case rclcpp::FutureReturnCode::INTERRUPTED:
-      RCLCPP_ERROR(get_logger(), "Request was interrupted");
+      REQ_ERROR("NULL", "Request was interrupted");
       return nullptr;
     case rclcpp::FutureReturnCode::TIMEOUT:
-      RCLCPP_ERROR(get_logger(), "Request was timeout");
+      REQ_ERROR("NULL", "Request was timeout");
       return nullptr;
     default:
-      RCLCPP_ERROR(get_logger(), "Request was missed");
+      REQ_ERROR("NULL", "Request was missed");
       return nullptr;
   }
   return goal_handle_future.get();
@@ -97,23 +121,24 @@ ActionClient::SendRequest(Msg::Goal request)
 ActionClient::GoalHandle::WrappedResult
 ActionClient::ReceiveResponse(GoalHandle::SharedPtr goal_handle)
 {
-  RCLCPP_INFO(get_logger(), "Request result");
+  auto gid = goal_handle->get_goal_id();
+  REQ_INFO(gid, "Request result");
   auto result_future = client->async_get_result(goal_handle);
-  RCLCPP_INFO(get_logger(), "Waiting for result");
+  REQ_INFO(gid, "Waiting for result");
   auto response = rclcpp::spin_until_future_complete(get_node_base_interface(),
                                                      result_future);
   switch (response) {
     case rclcpp::FutureReturnCode::SUCCESS:
-      RCLCPP_INFO(get_logger(), "Request was succeeded");
+      REQ_INFO(gid, "Request was succeeded");
       break;
     case rclcpp::FutureReturnCode::INTERRUPTED:
-      RCLCPP_ERROR(get_logger(), "Request was interrupted");
+      REQ_ERROR(gid, "Request was interrupted");
       break;
     case rclcpp::FutureReturnCode::TIMEOUT:
-      RCLCPP_ERROR(get_logger(), "Request was timeout");
+      REQ_ERROR(gid, "Request was timeout");
       break;
     default:
-      RCLCPP_ERROR(get_logger(), "Request was missed");
+      REQ_ERROR(gid, "Request was missed");
       break;
   }
   return result_future.get();
@@ -130,9 +155,10 @@ void
 ActionClient::SentRequest(const GoalHandle::SharedPtr& response)
 {
   if (!response) {
-    RCLCPP_ERROR(get_logger(), "Request was rejected by server");
+    REQ_ERROR("NULL", "Request was rejected by server");
   } else {
-    RCLCPP_INFO(get_logger(), "response was accepted by server");
+    auto gid = response->get_goal_id();
+    REQ_INFO(gid, "response was accepted by server");
   }
 }
 
@@ -143,16 +169,16 @@ void
 ActionClient::ReceiveFeedback(GoalHandle::SharedPtr goal_handle,
                               const Msg::Feedback::ConstSharedPtr response)
 {
-  RCLCPP_INFO(get_logger(), "Received feedback");
-  RCLCPP_INFO_STREAM(get_logger(),
-                     "Next number in sequence received: " << *response);
+  auto gid = goal_handle->get_goal_id();
+  REQ_INFO(gid, "Received feedback");
+  REQ_INFO(gid, "Next number in sequence received: " << *response);
 
   // 10以上は大きすぎるので必要ない
   auto max_it = std::max_element(response->partial_sequence.begin(),
                                  response->partial_sequence.end());
   if (max_it != response->partial_sequence.end()) {
     if (10 < *max_it) {
-      RCLCPP_INFO(get_logger(), "fibonacci support under 10. canceling...");
+      REQ_INFO(gid, "fibonacci support under 10. canceling...");
       Cancel(goal_handle);
     }
   }
@@ -167,22 +193,21 @@ ActionClient::ReceiveFeedback(GoalHandle::SharedPtr goal_handle,
 void
 ActionClient::ReceiveResult(const GoalHandle::WrappedResult& result)
 {
+  auto gid = result.goal_id;
   switch (result.code) {
     case rclcpp_action::ResultCode::SUCCEEDED:
-      RCLCPP_INFO(get_logger(), "Request was succeeded");
+      REQ_INFO(gid, "Request was succeeded");
       break;
     case rclcpp_action::ResultCode::ABORTED:
-      RCLCPP_ERROR(get_logger(), "Request was aborted");
+      REQ_ERROR(gid, "Request was aborted");
       rclcpp::shutdown();
       return;
     case rclcpp_action::ResultCode::CANCELED:
-      RCLCPP_ERROR(get_logger(), "Request was canceled");
+      REQ_ERROR(gid, "Request was canceled");
       rclcpp::shutdown();
       return;
     default:
-      RCLCPP_ERROR(get_logger(),
-                   "unexpected return code(%d)",
-                   static_cast<int8_t>(result.code));
+      REQ_ERROR(gid, "unexpected return code(" << result.code << ")");
       rclcpp::shutdown();
       return;
   }

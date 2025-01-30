@@ -5,6 +5,17 @@
 // original
 #include "fibonacci/action_operator_io.hpp"
 
+#define REQ_DEBUG(uuid, stream_arg)                                            \
+  RCLCPP_DEBUG_STREAM(get_logger(), "[" << uuid << "] " stream_arg)
+#define REQ_INFO(uuid, stream_arg)                                             \
+  RCLCPP_INFO_STREAM(get_logger(), "[" << uuid << "] " stream_arg)
+#define REQ_WARN(uuid, stream_arg)                                             \
+  RCLCPP_WARN_STREAM(get_logger(), "[" << uuid << "] " stream_arg)
+#define REQ_ERROR(uuid, stream_arg)                                            \
+  RCLCPP_ERROR_STREAM(get_logger(), "[" << uuid << "] " stream_arg)
+#define REQ_FATAL(uuid, stream_arg)                                            \
+  RCLCPP_FATAL_STREAM(get_logger(), "[" << uuid << "] " stream_arg)
+
 namespace fibonacci {
 /// @brief コンストラクタ
 /// @param options ROS2のノード設定
@@ -33,8 +44,9 @@ ActionServer::~ActionServer()
 void
 ActionServer::execute(const std::shared_ptr<GoalHandle> request)
 {
-  RCLCPP_INFO(get_logger(), "=== NEW REQUEST RECEIVED ===");
-  RCLCPP_INFO(get_logger(), "Executing fibonacci service");
+  auto gid = request->get_goal_id();
+  REQ_INFO(gid, "=== NEW REQUEST RECEIVED ===");
+  REQ_INFO(gid, "Executing fibonacci service");
   rclcpp::Rate loop_rate(1);
   const auto goal = request->get_goal();
   auto feedback = std::make_shared<Msg::Feedback>();
@@ -51,17 +63,17 @@ ActionServer::execute(const std::shared_ptr<GoalHandle> request)
     sequence.push_back(sequence[i] + sequence[i - 1]);
     // Publish feedback
     request->publish_feedback(feedback);
-    RCLCPP_INFO_STREAM(get_logger(), "Publish feedback: " << *feedback);
+    REQ_INFO(gid, "Publish feedback: " << *feedback);
     loop_rate.sleep();
   }
 
   result->sequence = sequence;
   if (request->is_canceling()) {
     request->canceled(result);
-    RCLCPP_INFO(get_logger(), "Request was canceled");
+    REQ_INFO(gid, "Request was canceled");
   } else {
     request->succeed(result);
-    RCLCPP_INFO(get_logger(), "Request was succeeded");
+    REQ_INFO(gid, "Request was succeeded");
   }
 }
 
@@ -73,14 +85,12 @@ rclcpp_action::GoalResponse
 ActionServer::Receive(const rclcpp_action::GoalUUID& uuid,
                       std::shared_ptr<const Msg::Goal> request)
 {
-  RCLCPP_INFO(get_logger(), "Receive goal request");
-  RCLCPP_INFO_STREAM(get_logger(), "Request ID: " << uuid);
-
+  REQ_INFO(uuid, "Receive goal request");
   if (request->order < 0) {
-    RCLCPP_INFO(get_logger(), "Request was rejected");
+    REQ_INFO(uuid, "Request was rejected");
     return rclcpp_action::GoalResponse::REJECT;
   }
-  RCLCPP_INFO(get_logger(), "Request was accepted");
+  REQ_INFO(uuid, "Request was accepted");
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 
@@ -90,7 +100,8 @@ ActionServer::Receive(const rclcpp_action::GoalUUID& uuid,
 rclcpp_action::CancelResponse
 ActionServer::Cancel(std::shared_ptr<GoalHandle> request)
 {
-  RCLCPP_INFO(get_logger(), "Receive cancel request");
+  auto gid = request->get_goal_id();
+  REQ_INFO(gid, "Receive cancel request");
   (void)request;
   return rclcpp_action::CancelResponse::ACCEPT;
 }
@@ -101,7 +112,8 @@ void
 ActionServer::Accept(std::shared_ptr<GoalHandle> request)
 {
   using namespace std::placeholders;
-  RCLCPP_INFO(get_logger(), "Start execution of goal");
+  auto gid = request->get_goal_id();
+  REQ_INFO(gid, "Start execution of goal");
   // this needs to return quickly to avoid blocking the executor,
   // so spin up a new thread
   std::thread{ std::bind(&ActionServer::execute, this, _1), request }.detach();
