@@ -46,7 +46,7 @@ main(int argc, char** argv)
         break;
     }
     if (response->result) {
-      std::cout << "Received: " << response->result << std::endl;
+      std::cout << "Received: " << *(response->result) << std::endl;
     }
   } catch (const std::exception& e) {
     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), e.what());
