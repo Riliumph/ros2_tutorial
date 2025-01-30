@@ -30,13 +30,13 @@ public:
 
 private:
   rclcpp_action::Server<Msg>::SharedPtr server;
-  void execute(const std::shared_ptr<GoalHandle> goal_handle);
+  void execute(std::shared_ptr<GoalHandle>);
 
 private: // callback
-  rclcpp_action::GoalResponse Receive(const rclcpp_action::GoalUUID& uuid,
-                                      std::shared_ptr<const Msg::Goal> request);
-  rclcpp_action::CancelResponse Cancel(std::shared_ptr<GoalHandle> request);
-  void Accept(std::shared_ptr<GoalHandle> request);
+  rclcpp_action::GoalResponse Receive(const rclcpp_action::GoalUUID&,
+                                      std::shared_ptr<const Msg::Goal>);
+  rclcpp_action::CancelResponse Cancel(std::shared_ptr<GoalHandle>);
+  void Accept(std::shared_ptr<GoalHandle>);
 };
 
 } // namespace fibonacci

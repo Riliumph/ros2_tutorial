@@ -42,7 +42,7 @@ ActionServer::~ActionServer()
 /// @brief サーバーの業務処理
 /// @param request リクエスト情報
 void
-ActionServer::execute(const std::shared_ptr<GoalHandle> request)
+ActionServer::execute(std::shared_ptr<GoalHandle> request)
 {
   auto gid = request->get_goal_id();
   REQ_INFO(gid, "=== NEW REQUEST RECEIVED ===");
