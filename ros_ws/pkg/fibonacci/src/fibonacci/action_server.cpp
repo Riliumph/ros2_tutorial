@@ -33,6 +33,7 @@ ActionServer::~ActionServer()
 void
 ActionServer::execute(const std::shared_ptr<GoalHandle> request)
 {
+  RCLCPP_INFO(get_logger(), "=== NEW REQUEST RECEIVED ===");
   RCLCPP_INFO(get_logger(), "Executing fibonacci service");
   rclcpp::Rate loop_rate(1);
   const auto goal = request->get_goal();
@@ -42,27 +43,24 @@ ActionServer::execute(const std::shared_ptr<GoalHandle> request)
   sequence.push_back(1);
   auto result = std::make_shared<Msg::Result>();
 
-  for (int i = 1; (i < goal->order) && rclcpp::ok(); ++i) {
-    // Check if there is a cancel request
+  for (int i = 1; i < goal->order; ++i) {
     if (request->is_canceling()) {
-      result->sequence = sequence;
-      request->canceled(result);
-      RCLCPP_INFO(get_logger(), "Request was canceled");
-      return;
+      break;
     }
     // Update sequence
     sequence.push_back(sequence[i] + sequence[i - 1]);
     // Publish feedback
     request->publish_feedback(feedback);
     RCLCPP_INFO_STREAM(get_logger(), "Publish feedback: " << *feedback);
-
     loop_rate.sleep();
   }
 
-  // Check if goal is done
-  if (rclcpp::ok()) {
-    result->sequence = sequence;
-    request->succeed(result); // response
+  result->sequence = sequence;
+  if (request->is_canceling()) {
+    request->canceled(result);
+    RCLCPP_INFO(get_logger(), "Request was canceled");
+  } else {
+    request->succeed(result);
     RCLCPP_INFO(get_logger(), "Request was succeeded");
   }
 }
