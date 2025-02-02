@@ -14,6 +14,7 @@ find_package(ament_cmake REQUIRED)
 # find_package(<dependency> REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
 find_package(rclcpp_components REQUIRED)
 # original package
 find_package(fibonacci_msg REQUIRED)
@@ -36,6 +37,7 @@ target_compile_definitions(${SRV_SRV_LIB}
 )
 ament_target_dependencies(${SRV_SRV_LIB}
   "rclcpp"
+  "rclcpp_lifecycle"
   "rclcpp_action"
   "rclcpp_components"
   "fibonacci_msg"
@@ -59,6 +61,7 @@ target_compile_definitions(${ACT_SRV_LIB}
 )
 ament_target_dependencies(${ACT_SRV_LIB}
   "rclcpp"
+  "rclcpp_lifecycle"
   "rclcpp_action"
   "rclcpp_components"
   "fibonacci_msg"
@@ -82,6 +85,7 @@ target_compile_definitions(${ACT_CLI_LIB}
 )
 ament_target_dependencies(${ACT_CLI_LIB}
   "rclcpp"
+  "rclcpp_lifecycle"
   "rclcpp_action"
   "rclcpp_components"
   "fibonacci_msg"
@@ -104,6 +108,7 @@ target_compile_definitions(${SRV_CLI_LIB}
 )
 ament_target_dependencies(${SRV_CLI_LIB}
   "rclcpp"
+  "rclcpp_lifecycle"
   "rclcpp_components"
   "fibonacci_msg"
 )
@@ -136,6 +141,7 @@ target_include_directories(${ACT_CLI_BIN} PRIVATE
 )
 ament_target_dependencies(${ACT_CLI_BIN}
   "rclcpp"
+  "rclcpp_lifecycle"
   "rclcpp_action"
   "rclcpp_components"
   "fibonacci_msg"
@@ -161,6 +167,7 @@ target_include_directories(${SRV_CLI_BIN} PRIVATE
 # 別パッケージのライブラリはこちらに書く
 ament_target_dependencies(${SRV_CLI_BIN}
   "rclcpp"
+  "rclcpp_lifecycle"
   "rclcpp_action"
   "rclcpp_components"
   "fibonacci_msg"

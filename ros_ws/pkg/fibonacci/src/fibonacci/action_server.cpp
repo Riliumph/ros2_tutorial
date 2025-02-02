@@ -1,9 +1,18 @@
 #include "fibonacci/action_server.hpp"
 // STL
+#include <csignal>
 #include <functional>
 #include <thread>
+// ROS
+#include <lifecycle_msgs/msg/state.hpp>
 // original
 #include "fibonacci/action_operator_io.hpp"
+
+#define RCLCPP_INFO_S(stream_arg) RCLCPP_INFO_STREAM(get_logger(), stream_arg)
+#define RCLCPP_DEBUG_S(stream_arg) RCLCPP_DEBUG_STREAM(get_logger(), stream_arg)
+#define RCLCPP_WARN_S(stream_arg) RCLCPP_WARN_STREAM(get_logger(), stream_arg)
+#define RCLCPP_ERROR_S(stream_arg) RCLCPP_ERROR_STREAM(get_logger(), stream_arg)
+#define RCLCPP_FATAL_S(stream_arg) RCLCPP_FATAL_STREAM(get_logger(), stream_arg)
 
 #define REQ_DEBUG(uuid, stream_arg)                                            \
   RCLCPP_DEBUG_STREAM(get_logger(), "[" << uuid << "] " stream_arg)
@@ -20,17 +29,10 @@ namespace fibonacci {
 /// @brief コンストラクタ
 /// @param options ROS2のノード設定
 ActionServer::ActionServer(const rclcpp::NodeOptions& options)
-  : Node(node_name, options)
+  : LifecycleNode(node_name, options)
 {
-  using namespace std::placeholders;
-  RCLCPP_DEBUG(get_logger(), "Establish Server");
-  server = rclcpp_action::create_server<Msg>(
-    this,
-    service_name,
-    std::bind(&ActionServer::Receive, this, _1, _2),
-    std::bind(&ActionServer::Cancel, this, _1),
-    std::bind(&ActionServer::Accept, this, _1));
-  RCLCPP_INFO_STREAM(get_logger(), get_name() << " created");
+  RCLCPP_INFO_S(get_name() << " created");
+  RCLCPP_INFO_S("Current state: " << get_current_state().label());
 }
 
 /// @brief デストラクタ
@@ -38,6 +40,61 @@ ActionServer::~ActionServer()
 {
   RCLCPP_INFO_STREAM(get_logger(), get_name() << " finalized");
 }
+#pragma region lifecycle
+/// @brief ライフサイクルノードの設定時に発火するコールバック
+/// 本来、サーバーはon_activate()で生成するべきだが、
+/// Receive()でリクエスト拒否を実装するためにあえて生成している
+/// 通常のクライアントであればはwait_for_action_server()でリクエスト送信前にチェックするので
+/// リクエスト自体は送られない使われ方が主流と思われる。
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+ActionServer::on_configure(const rclcpp_lifecycle::State& previous_state)
+{
+  (void)previous_state;
+  RCLCPP_INFO_S("on_configure() is called.");
+  using namespace std::placeholders;
+  RCLCPP_INFO_S("Establish Server");
+  server = rclcpp_action::create_server<Msg>(
+    this,
+    service_name,
+    std::bind(&ActionServer::Receive, this, _1, _2),
+    std::bind(&ActionServer::Cancel, this, _1),
+    std::bind(&ActionServer::Accept, this, _1));
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::
+    CallbackReturn::SUCCESS;
+}
+
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+ActionServer::on_activate(const rclcpp_lifecycle::State&)
+{
+  RCLCPP_INFO_S("on_activate() is called.");
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::
+    CallbackReturn::SUCCESS;
+}
+
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+ActionServer::on_deactivate(const rclcpp_lifecycle::State&)
+{
+  RCLCPP_INFO_S("on_deactivate() is called.");
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::
+    CallbackReturn::SUCCESS;
+}
+
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+ActionServer::on_cleanup(const rclcpp_lifecycle::State&)
+{
+  RCLCPP_INFO_S("on_cleanup() is called.");
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::
+    CallbackReturn::SUCCESS;
+}
+
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+ActionServer::on_shutdown(const rclcpp_lifecycle::State&)
+{
+  RCLCPP_INFO_S("on_shutdown() is called.");
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::
+    CallbackReturn::SUCCESS;
+}
+#pragma endregion lifecycle
 
 /// @brief サーバーの業務処理
 /// @param request リクエスト情報
@@ -86,6 +143,13 @@ ActionServer::Receive(const rclcpp_action::GoalUUID& uuid,
                       std::shared_ptr<const Msg::Goal> request)
 {
   REQ_INFO(uuid, "Receive goal request");
+  // lifecycle check
+  auto current_state_id = get_current_state().id();
+  if (current_state_id != lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE) {
+    REQ_ERROR(uuid, "Server is not active");
+    return rclcpp_action::GoalResponse::REJECT;
+  }
+  // order check
   if (request->order < 0) {
     REQ_INFO(uuid, "Request was rejected");
     return rclcpp_action::GoalResponse::REJECT;
