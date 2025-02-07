@@ -8,6 +8,12 @@
 $ ros2 pkg create fibonacci_msg --license MIT
 ```
 
+## ビルド方法
+
+```console
+$ colcon build --packages-select fibonacci_msg
+```
+
 ## 成果物の確認
 
 ```bash
