@@ -1,9 +1,9 @@
 FROM ubuntu:24.04
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-ARG DEFAULT_ARCIVE_URL=http://archive.ubuntu.com/ubuntu/
+ARG OLD_ARCHIVE_URL=http://archive.ubuntu.com/ubuntu/
 ARG NEW_ARCHIVE_URL=http://ftp.jaist.ac.jp/pub/Linux/ubuntu/
-RUN sed -i "s@${DEFAULT_ARCIVE_URL}@${NEW_ARCHIVE_URL}@g" /etc/apt/sources.list.d/ubuntu.sources
+RUN sed -i "s@${OLD_ARCHIVE_URL}@${NEW_ARCHIVE_URL}@g" /etc/apt/sources.list.d/ubuntu.sources
 RUN apt-get -qq update &&\
     DEBIAN_FRONTEND=noninteractive apt-get -qq install --no-install-recommends -y\
     ## util
@@ -31,12 +31,16 @@ RUN locale-gen ja_JP ja_JP.UTF-8 &&\
 ENV ROS_DISTRO=jazzy
 ARG ROS_KEYRING_URL=https://raw.githubusercontent.com/ros/rosdistro/master/ros.key
 ARG ROS_KEYRING_PATH=/usr/share/keyrings/ros-archive-keyring.gpg
-RUN add-apt-repository -y universe &&\
-    curl -sL $ROS_KEYRING_URL -o $ROS_KEYRING_PATH &&\
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=$ROS_KEYRING_PATH] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo ${UBUNTU_CODENAME}) main" > /etc/apt/sources.list.d/ros2.list
+ARG ROS_URI=http://packages.ros.org/ros2/ubuntu
+RUN CPU_ARCH=$(dpkg --print-architecture) &&\
+    UBUNTU_CODENAME=$(. /etc/os-release && echo ${UBUNTU_CODENAME}) &&\
+    add-apt-repository -y universe &&\
+    curl -sL ${ROS_KEYRING_URL} -o ${ROS_KEYRING_PATH} &&\
+    echo "deb [arch=${CPU_ARCH} signed-by=${ROS_KEYRING_PATH}] ${ROS_URI} ${UBUNTU_CODENAME} main" > /etc/apt/sources.list.d/ros2.list
 
 RUN apt-get -qq update &&\
-    DEBIAN_FRONTEND=noninteractive apt-get -qq install --no-install-recommends -y\
+    DEBIAN_FRONTEND=noninteractive &&\
+    apt-get -qq install --no-install-recommends -y\
     ros-dev-tools\
     ros-${ROS_DISTRO}-desktop\
     python3-argcomplete\
@@ -59,14 +63,18 @@ RUN curl -sL --insecure ${HADOLINT_URL} -o ${HADOLINT_PATH} &&\
 
 # user definition
 ENV USER=ubuntu
-RUN echo "${USER}:${USER}" | chpasswd
-
+ENV SHELL=/bin/bash
+RUN id ubuntu || \
+    useradd -m ${USER} -s ${SHELL} &&\
+    usermod -aG sudo ${USER} &&\
+    echo "${USER}:${USER}" | chpasswd
 USER ubuntu
 WORKDIR /home/ubuntu
-RUN rm -rf bin &&\
-    mkdir -p bin
+RUN mkdir -p bin
 COPY diff-highlight bin
 # ROS
-RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> "$HOME/.bashrc" &&\
+RUN {\
+    echo "source /opt/ros/${ROS_DISTRO}/setup.bash";\
     # pecoのバグ回避策（https://github.com/peco/peco/issues/541）
-    echo "export TERM=xterm" >> "$HOME/.bashrc"
+    echo "export TERM=xterm";\
+    } >> "$HOME/.bashrc"
