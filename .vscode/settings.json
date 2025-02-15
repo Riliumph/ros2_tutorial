@@ -1,19 +1,40 @@
 {
+    "C_Cpp.autoAddFileAssociations": false,
+    "C_Cpp.clang_format_fallbackStyle": "Mozilla",
+    "C_Cpp.clang_format_sortIncludes": true,
+    "C_Cpp.clang_format_style": "Mozilla",
+    "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
+        "readability-identifier-length",
+        "readability-named-parameter",
+        "readability-redundant-access-specifiers"
+    ],
+    "C_Cpp.codeAnalysis.clangTidy.checks.enabled": [
+        "cppcoreguidelines-init-variables",
+        "readability-*"
+    ],
+    "C_Cpp.codeAnalysis.clangTidy.enabled": true,
+    "C_Cpp.codeAnalysis.exclude": {
+        "/usr/**": true,
+        "**/*_test.cpp": true
+    },
+    "C_Cpp.codeAnalysis.runAutomatically": true,
+    "C_Cpp.default.cppStandard": "c++23",
+    "C_Cpp.inlayHints.parameterNames.enabled": true,
+    "C_Cpp.inlayHints.parameterNames.suppressWhenArgumentContainsName": true,
+    "C_Cpp.inlayHints.referenceOperator.enabled": true,
     "[c++]": {
         "editor.formatOnSave": true,
         "editor.tabSize": 2,
-        "files.insertFinalNewline": true,
+        "files.insertFinalNewline": true
     },
     "[sql]": {
         "editor.formatOnSave": false,
         "editor.tabSize": 2,
         "files.insertFinalNewline": true
     },
-    "C_Cpp.autoAddFileAssociations": false,
-    "C_Cpp.clang_format_fallbackStyle": "Mozilla",
-    "C_Cpp.clang_format_style": "Mozilla",
-    "C_Cpp.clang_format_sortIncludes": true,
-    "cSpell.words": [],
+    "cSpell.words": [
+        "rclcpp"
+    ],
     "editor.tokenColorCustomizations": {
         "textMateRules": [
             {
@@ -37,8 +58,8 @@
         ]
     },
     "gtest-adapter.debugConfig": [
-        "Unit Test",
+        "UnitTest"
     ],
     "gtest-adapter.supportLocation": true,
-    "sql-formatter.uppercase": true,
+    "sql-formatter.uppercase": true
 }

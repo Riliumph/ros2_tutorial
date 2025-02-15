@@ -10,6 +10,7 @@
                 "${workspaceFolder}/ros_ws/pkg/**/include/**",
                 "${workspaceFolder}/ros_ws/pkg/**/src/**",
                 "${workspaceFolder}/ros_ws/install/fibonacci_msg/include/fibonacci_msg/**",
+                "${workspaceFolder}/ros_ws/install/greet_msg/include/greet_msg/**",
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
