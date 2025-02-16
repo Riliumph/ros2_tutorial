@@ -167,7 +167,7 @@ ActionClient::SentRequest(const GoalHandle::SharedPtr& response)
 /// @param response フィードバックとして受け取るレスポンス情報
 void
 ActionClient::ReceiveFeedback(GoalHandle::SharedPtr goal_handle,
-                              const Msg::Feedback::ConstSharedPtr response)
+                              Msg::Feedback::ConstSharedPtr response)
 {
   auto gid = goal_handle->get_goal_id();
   REQ_INFO(gid, "Received feedback");
