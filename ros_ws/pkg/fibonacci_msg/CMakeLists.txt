@@ -13,9 +13,12 @@ find_package(ament_cmake REQUIRED)
 
 find_package(rosidl_default_generators REQUIRED)
 
+file(GLOB act_files RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} action/*.action)
+file(GLOB srv_files RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} srv/*.srv)
+
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "action/Fibonacci.action"
-  "srv/Fibonacci.srv"
+  ${act_files}
+  ${srv_files}
 )
 
 # Include directories

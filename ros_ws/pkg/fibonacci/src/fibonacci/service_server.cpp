@@ -9,16 +9,16 @@ ServiceServer::ServiceServer(const rclcpp::NodeOptions& options)
   : Node(node_name, options)
 {
   using namespace std::placeholders;
-  RCLCPP_DEBUG(this->get_logger(), "Establish Server");
-  server = this->create_service<Msg>(
+  RCLCPP_DEBUG(get_logger(), "Establish Server");
+  server = create_service<Msg>(
     service_name, std::bind(&ServiceServer::execute, this, _1, _2));
-  RCLCPP_INFO_STREAM(this->get_logger(), this->get_name() << " created");
+  RCLCPP_INFO_STREAM(get_logger(), get_name() << " created");
 }
 
 /// @brief デストラクタ
 ServiceServer::~ServiceServer()
 {
-  RCLCPP_INFO_STREAM(this->get_logger(), this->get_name() << " finalized");
+  RCLCPP_INFO_STREAM(get_logger(), get_name() << " finalized");
 }
 
 /// @brief サービス実行関数
@@ -28,7 +28,7 @@ void
 ServiceServer::execute(const std::shared_ptr<Msg::Request> request,
                        std::shared_ptr<Msg::Response> response)
 {
-  RCLCPP_INFO(this->get_logger(), "Executing fibonacci Service");
+  RCLCPP_INFO(get_logger(), "Executing fibonacci Service");
 
   auto& sequence = response->sequence;
   sequence.push_back(0);
@@ -39,7 +39,7 @@ ServiceServer::execute(const std::shared_ptr<Msg::Request> request,
     sequence.push_back(sequence[i] + sequence[i - 1]);
   }
 
-  RCLCPP_INFO(this->get_logger(), "Request was succeeded");
+  RCLCPP_INFO(get_logger(), "Request was succeeded");
 }
 } // namespace fibonacci
 

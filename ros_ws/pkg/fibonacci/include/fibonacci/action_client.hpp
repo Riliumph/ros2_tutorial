@@ -29,8 +29,8 @@ public:
     const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
   ~ActionClient();
 
-  std::optional<GoalHandle::WrappedResult> Send(Msg::Goal goal);
-  void Cancel(const GoalHandle::SharedPtr& request);
+  std::optional<GoalHandle::WrappedResult> Send(Msg::Goal);
+  void Cancel(const GoalHandle::SharedPtr&);
 
 private:
   rclcpp_action::Client<Msg>::SharedPtr client;
@@ -39,14 +39,13 @@ private:
   rclcpp_action::Client<Msg>::SendGoalOptions send_options;
 
 private:
-  GoalHandle::SharedPtr SendRequest(Msg::Goal request);
-  GoalHandle::WrappedResult ReceiveResponse(GoalHandle::SharedPtr goal_handle);
+  GoalHandle::SharedPtr SendRequest(Msg::Goal);
+  GoalHandle::WrappedResult ReceiveResponse(GoalHandle::SharedPtr);
 
 private: // callback
-  void SentRequest(const GoalHandle::SharedPtr& request);
-  void ReceiveFeedback(GoalHandle::SharedPtr goal_handle,
-                       const Msg::Feedback::ConstSharedPtr feedback);
-  void ReceiveResult(const GoalHandle::WrappedResult& result);
+  void SentRequest(const GoalHandle::SharedPtr&);
+  void ReceiveFeedback(GoalHandle::SharedPtr, Msg::Feedback::ConstSharedPtr);
+  void ReceiveResult(const GoalHandle::WrappedResult&);
 };
 
 } // namespace fibonacci

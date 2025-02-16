@@ -32,10 +32,7 @@
 				"extensions.verifySignature": false
 			},
 			"extensions": [
-				"ms-vscode.cpptools-themes",
-				"ms-vscode.cpptools",
 				"ms-vscode.cpptools-extension-pack",
-				"ms-vscode.cmake-tools",
 				"ms-vscode.makefile-tools",
 				"DavidSchuldenfrei.gtest-adapter",
 				"streetsidesoftware.code-spell-checker",
