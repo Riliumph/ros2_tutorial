@@ -30,17 +30,19 @@ public:
   ~ActionClient();
 
   std::optional<GoalHandle::WrappedResult> Send(Msg::Goal);
-  void Cancel(const GoalHandle::SharedPtr&);
+  void Abort();
 
 private:
   rclcpp_action::Client<Msg>::SharedPtr client;
   rclcpp::TimerBase::SharedPtr timer_;
   std::string dest_service_name;
   rclcpp_action::Client<Msg>::SendGoalOptions send_options;
+  GoalHandle::SharedPtr goal_handle;
 
 private:
   GoalHandle::SharedPtr SendRequest(Msg::Goal);
   GoalHandle::WrappedResult ReceiveResponse(GoalHandle::SharedPtr);
+  void Cancel(const GoalHandle::SharedPtr&);
 
 private: // callback
   void SentRequest(const GoalHandle::SharedPtr&);

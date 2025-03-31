@@ -62,7 +62,7 @@ ActionClient::Send(Msg::Goal request)
     RCLCPP_ERROR(get_logger(), "Action server not available after waiting");
   }
   // コールバックのSentRequest()に相当する処理
-  auto goal_handle = SendRequest(request);
+  goal_handle = SendRequest(request);
   if (!goal_handle) {
     RCLCPP_ERROR(get_logger(), "Request was rejected");
     return std::nullopt;
@@ -87,6 +87,16 @@ ActionClient::Cancel(const GoalHandle::SharedPtr& request)
   // のfuture-blockingが解除される
 }
 
+void
+ActionClient::Abort()
+{
+  auto gid = goal_handle->get_goal_id();
+  REQ_INFO(gid, "Request cancel");
+  client->async_cancel_goal(goal_handle);
+  // auto result_future = client->async_get_result(goal_handle);
+  // のfuture-blockingが解除される
+}
+
 /// @brief リクエストの送信を行う
 /// @param request サーバーへ送信する情報
 /// @return 受信時に使うハンドル（ID）
@@ -100,16 +110,16 @@ ActionClient::SendRequest(Msg::Goal request)
                                                      goal_handle_future);
   switch (accepted) {
     case rclcpp::FutureReturnCode::SUCCESS:
-      REQ_INFO("NULL", "Request was accepted");
+      REQ_INFO("NULL", "Connection was accepted");
       break;
     case rclcpp::FutureReturnCode::INTERRUPTED:
-      REQ_ERROR("NULL", "Request was interrupted");
+      REQ_ERROR("NULL", "Connection was interrupted");
       return nullptr;
     case rclcpp::FutureReturnCode::TIMEOUT:
-      REQ_ERROR("NULL", "Request was timeout");
+      REQ_ERROR("NULL", "Connection was timeout");
       return nullptr;
     default:
-      REQ_ERROR("NULL", "Request was missed");
+      REQ_ERROR("NULL", "Connection was missed");
       return nullptr;
   }
   return goal_handle_future.get();
@@ -127,19 +137,22 @@ ActionClient::ReceiveResponse(GoalHandle::SharedPtr goal_handle)
   REQ_INFO(gid, "Waiting for result");
   auto response = rclcpp::spin_until_future_complete(get_node_base_interface(),
                                                      result_future);
+  GoalHandle::WrappedResult interrupted_result;
+  interrupted_result.goal_id = gid;
+  interrupted_result.code = rclcpp_action::ResultCode::ABORTED;
   switch (response) {
     case rclcpp::FutureReturnCode::SUCCESS:
       REQ_INFO(gid, "Request was succeeded");
       break;
     case rclcpp::FutureReturnCode::INTERRUPTED:
       REQ_ERROR(gid, "Request was interrupted");
-      break;
+      return interrupted_result;
     case rclcpp::FutureReturnCode::TIMEOUT:
       REQ_ERROR(gid, "Request was timeout");
-      break;
+      return interrupted_result;
     default:
       REQ_ERROR(gid, "Request was missed");
-      break;
+      return interrupted_result;
   }
   return result_future.get();
 }

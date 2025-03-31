@@ -131,6 +131,7 @@ install(
 set(ACT_CLI_BIN "fibonacci_action_client_node")
 add_executable(${ACT_CLI_BIN}
   src/action_client_main.cpp
+  src/graceful_shutdown/flags.cpp
 )
 target_link_libraries(${ACT_CLI_BIN}
   ${ACT_CLI_LIB}
