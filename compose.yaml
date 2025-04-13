@@ -14,8 +14,3 @@ services:
 
 networks:
   ros_nw:
-    external: false
-    ipam:
-      driver: default
-      config:
-        - subnet: 10.20.0.0/16
