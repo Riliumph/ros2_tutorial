@@ -49,9 +49,10 @@ main(int argc, char** argv)
   sa.sa_handler = GracefulShutdown;
   sigemptyset(&sa.sa_mask);
   sa.sa_flags = 0;
-  sigaction(SIGTERM, &sa, nullptr);
+  sigaction(SIGINT, &sa, nullptr);
 
-  rclcpp::init(argc, argv);
+  rclcpp::init(
+    argc, argv, rclcpp::InitOptions(), rclcpp::SignalHandlerOptions::None);
   pid_t pid = getpid();
   RCLCPP_INFO(logger, "プロセスID: %d", pid);
   auto cli = std::make_shared<fibonacci::ActionClient>();
