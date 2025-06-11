@@ -64,12 +64,18 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -qq install --no-install-recommends -
     peco\
     git\
     vim\
+    postgresql-client\
     ## network tools
     lsof\
     dnsutils\
     iproute2\
     iputils-ping\
     traceroute\
+    ## stat
+    sysstat\
+    htop\
+    # perf
+    linux-tools-common linux-tools-generic\
     && apt-get clean\
     && rm -rf /var/lib/apt/lists/*
 
@@ -101,6 +107,11 @@ USER ubuntu
 WORKDIR /home/ubuntu
 RUN mkdir -p bin
 COPY diff-highlight bin
+ENV PGHOST=db
+ENV PGPORT=5432
+ENV PGDATABASE=postgres
+ENV PGUSER=postgres
+ENV PGPASSWORD=postgres
 # ROS
 RUN {\
     echo "source /opt/ros/${ROS_DISTRO}/setup.bash";\
