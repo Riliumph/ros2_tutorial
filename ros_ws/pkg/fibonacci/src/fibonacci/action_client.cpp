@@ -190,8 +190,8 @@ ActionClient::ReceiveFeedback(GoalHandle::SharedPtr goal_handle,
   auto max_it = std::max_element(response->partial_sequence.begin(),
                                  response->partial_sequence.end());
   if (max_it != response->partial_sequence.end()) {
-    if (10 < *max_it) {
-      REQ_INFO(gid, "fibonacci support under 10. canceling...");
+    if (FIBONACCI_MAX < *max_it) {
+      REQ_INFO(gid, "support under " << FIBONACCI_MAX << " canceling...");
       Cancel(goal_handle);
     }
   }
