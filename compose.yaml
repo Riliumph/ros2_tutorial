@@ -11,6 +11,22 @@ services:
     hostname: devcontainer
     networks:
       - ros_nw
-
+  db:
+    build:
+      context: db
+      dockerfile: Dockerfile
+    restart: always
+    hostname: database
+    networks:
+      - ros_nw
+    volumes:
+      - type: bind
+        source: db/initdb
+        target: /docker-entrypoint-initdb.d
+    ports:
+      - target: 5432
+        published: 5432
+    stdin_open: false
+    tty: false
 networks:
   ros_nw:

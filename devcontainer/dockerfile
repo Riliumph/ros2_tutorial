@@ -66,10 +66,14 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -qq install --no-install-recommends -
     vim\
     ## network tools
     lsof\
+    ncat\
+    nmap\
     dnsutils\
     iproute2\
     iputils-ping\
     traceroute\
+    ## postgres
+    postgresql-client\
     && apt-get clean\
     && rm -rf /var/lib/apt/lists/*
 
@@ -106,4 +110,8 @@ RUN {\
     echo "source /opt/ros/${ROS_DISTRO}/setup.bash";\
     # pecoのバグ回避策（https://github.com/peco/peco/issues/541）
     echo "export TERM=xterm";\
+    echo "export PGHOST=database";\
+    echo "export PGPORT=5432";\
+    echo "export PGUSER=postgres";\
+    echo "export PGDATABASE=postgres";\
     } >> "$HOME/.bashrc"
