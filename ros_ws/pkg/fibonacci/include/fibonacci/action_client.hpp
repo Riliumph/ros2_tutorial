@@ -23,7 +23,7 @@ public:
 public:
   static constexpr const char* node_name = "fibonacci_action_client_node";
   static constexpr const char* client_name = "fibonacci_action_client";
-  static constexpr const int FIBONACCI_MAX = 100;
+  static constexpr const int FIBONACCI_MAX = 10000;
 
 public:
   FIBONACCI_PUBLIC explicit ActionClient(
