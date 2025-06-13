@@ -11,6 +11,18 @@ services:
     hostname: devcontainer
     networks:
       - ros_nw
+  ros_server:
+    build:
+      context: devcontainer/
+      dockerfile: dockerfile
+    shm_size: 256m # GUI用に共有メモリ拡張
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/workspaces:cached
+    hostname: ros_server
+    networks:
+      - ros_nw
   db:
     build:
       context: db
