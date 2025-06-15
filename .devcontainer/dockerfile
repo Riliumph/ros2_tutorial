@@ -113,6 +113,8 @@ ARG HADOLINT_PATH=/usr/local/bin/hadolint
 RUN curl -sL --insecure ${HADOLINT_URL} -o ${HADOLINT_PATH} &&\
     chmod +x ${HADOLINT_PATH}
 
+WORKDIR /etc/bash_completion.d
+RUN docker completion bash > docker-completion
 # user definition
 ENV USER=ubuntu
 ENV SHELL=/bin/bash
@@ -124,15 +126,6 @@ USER ubuntu
 WORKDIR /home/ubuntu
 RUN mkdir -p bin
 COPY diff-highlight bin
-WORKDIR $HOME/.config/bash_completion.d
-RUN docker completion bash > docker &&\
-    {\
-    # /etc/bash.bashrcと/root/.bashrcで無効化されているため有効化する
-    echo "if [ -f /etc/bash_completion ]; then";\
-    echo "    . /etc/bash_completion";\
-    echo "fi";\
-    echo "source $HOME/.config/bash_completion.d/docker";\
-    } >> $HOME/.bashrc
 RUN {\
     echo "source /opt/ros/${ROS_DISTRO}/setup.bash";\
     # pecoのバグ回避策（https://github.com/peco/peco/issues/541）
