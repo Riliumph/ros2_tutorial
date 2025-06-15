@@ -25,9 +25,9 @@ ENV DOCKER_KEYRING_URL=https://download.docker.com/linux/ubuntu/gpg
 ENV DOCKER_KEYRING_PATH=/etc/apt/keyrings/docker.asc
 ENV DOCKER_URI=https://download.docker.com/linux/ubuntu
 RUN CPU_ARCH=$(dpkg --print-architecture) &&\
-    UBUNTU_CODENAME=$(. /etc/os-release && echo ${UBUNTU_CODENAME}) &&\
+    VERSION_CODENAME=$(. /etc/os-release && echo ${VERSION_CODENAME}) &&\
     curl -fsSL ${DOCKER_KEYRING_URL} -o ${DOCKER_KEYRING_PATH} &&\
-    echo "deb [arch=${CPU_ARCH} signed-by=${DOCKER_KEYRING_PATH}] ${DOCKER_URI} ${UBUNTU_CODENAME} stable" >/etc/apt/sources.list.d/docker.list
+    echo "deb [arch=${CPU_ARCH} signed-by=${DOCKER_KEYRING_PATH}] ${DOCKER_URI} ${VERSION_CODENAME} stable" >/etc/apt/sources.list.d/docker.list
 RUN apt-get -qq update &&\
     DEBIAN_FRONTEND=noninteractive apt-get -qq install --no-install-recommends -y\
     docker-ce\
@@ -44,10 +44,10 @@ ARG ROS_KEYRING_URL=https://raw.githubusercontent.com/ros/rosdistro/master/ros.k
 ARG ROS_KEYRING_PATH=/usr/share/keyrings/ros-archive-keyring.gpg
 ARG ROS_URI=http://packages.ros.org/ros2/ubuntu
 RUN CPU_ARCH=$(dpkg --print-architecture) &&\
-    UBUNTU_CODENAME=$(. /etc/os-release && echo ${UBUNTU_CODENAME}) &&\
+    VERSION_CODENAME=$(. /etc/os-release && echo ${VERSION_CODENAME}) &&\
     add-apt-repository -y universe &&\
     curl -sL ${ROS_KEYRING_URL} -o ${ROS_KEYRING_PATH} &&\
-    echo "deb [arch=${CPU_ARCH} signed-by=${ROS_KEYRING_PATH}] ${ROS_URI} ${UBUNTU_CODENAME} main" > /etc/apt/sources.list.d/ros2.list
+    echo "deb [arch=${CPU_ARCH} signed-by=${ROS_KEYRING_PATH}] ${ROS_URI} ${VERSION_CODENAME} main" > /etc/apt/sources.list.d/ros2.list
 RUN apt-get -qq update &&\
     DEBIAN_FRONTEND=noninteractive apt-get -qq install --no-install-recommends -y\
     ros-dev-tools\
