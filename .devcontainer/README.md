@@ -11,8 +11,25 @@ VSCodeがssh-serverを立ててログインしてくれるので特にいうこ�
 
 ### ROS Serverコンテナへの入り方
 
-docker-in-dockerが採用されている前提とする。
+docker outside of dockerが採用されている前提とする。
+
+```console
+$ docker exec -it ros2_tutorial-ros_server-1 /bin/bash
+```
+
+#### composeコマンドは？
+
+VSCodeのdevcontainerはcomposeコマンドは使えない
+
+```console
+$ docker compose ps -a
+NAME      IMAGE     COMMAND   SERVICE   CREATED   STATUS    PORTS
+```
+
+composeがコンテナを知らない。  
+コンテナを知らないから、動いていないと判断される。
 
 ```console
 $ docker compose exec -it ros_server /bin/bash
+service "ros_server" is not running
 ```
