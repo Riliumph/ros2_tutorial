@@ -3,6 +3,8 @@ services:
     build:
       context: .devcontainer/
       dockerfile: dockerfile
+      args:
+        DOCKER_GID: 200
     shm_size: 256m # GUI用に共有メモリ拡張
     stdin_open: true
     tty: true

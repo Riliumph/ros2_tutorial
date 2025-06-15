@@ -11,6 +11,8 @@ services:
       # devcontainer.json dockerComposeFile配列の0番目のファイルがルートになる
       context: .devcontainer
       dockerfile: dockerfile
+      args:
+        DOCKER_GID: 200
     hostname: devcontainer
     shm_size: 256m # GUI用に共有メモリ拡張
     volumes:
@@ -24,7 +26,7 @@ services:
       #   - seccomp:unconfined
 
       # Overrides default command so things don't shut down after the process ends.
-    command: /bin/sh -c "while sleep 1000; do :; done"
+    command: sleep infinity
     networks:
       - ros_nw
 networks:

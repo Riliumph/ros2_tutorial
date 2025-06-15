@@ -18,6 +18,25 @@ RUN apt-get -qq update &&\
     curl\
     wget
 
+RUN echo "INSTALL DOCKER"
+ARG DOCKER_GID
+RUN groupadd docker -g ${DOCKER_GID}
+ENV DOCKER_KEYRING_URL=https://download.docker.com/linux/ubuntu/gpg
+ENV DOCKER_KEYRING_PATH=/etc/apt/keyrings/docker.asc
+ENV DOCKER_URI=https://download.docker.com/linux/ubuntu
+RUN CPU_ARCH=$(dpkg --print-architecture) &&\
+    UBUNTU_CODENAME=$(. /etc/os-release && echo ${UBUNTU_CODENAME}) &&\
+    curl -fsSL ${DOCKER_KEYRING_URL} -o ${DOCKER_KEYRING_PATH} &&\
+    echo "deb [arch=${CPU_ARCH} signed-by=${DOCKER_KEYRING_PATH}] ${DOCKER_URI} ${UBUNTU_CODENAME} stable" >/etc/apt/sources.list.d/docker.list
+RUN apt-get -qq update &&\
+    DEBIAN_FRONTEND=noninteractive apt-get -qq install --no-install-recommends -y\
+    docker-ce\
+    docker-ce-cli\
+    containerd.io\
+    docker-buildx-plugin\
+    docker-compose-plugin
+
+
 RUN echo "INSTALL ROS PACKAGES"
 # add ros package repository
 ENV ROS_DISTRO=jazzy
@@ -105,11 +124,20 @@ USER ubuntu
 WORKDIR /home/ubuntu
 RUN mkdir -p bin
 COPY diff-highlight bin
-# ROS
+WORKDIR $HOME/.config/bash_completion.d
+RUN docker completion bash > docker &&\
+    {\
+    # /etc/bash.bashrcと/root/.bashrcで無効化されているため有効化する
+    echo "if [ -f /etc/bash_completion ]; then";\
+    echo "    . /etc/bash_completion";\
+    echo "fi";\
+    echo "source $HOME/.config/bash_completion.d/docker";\
+    } >> $HOME/.bashrc
 RUN {\
     echo "source /opt/ros/${ROS_DISTRO}/setup.bash";\
     # pecoのバグ回避策（https://github.com/peco/peco/issues/541）
     echo "export TERM=xterm";\
+    # postgress
     echo "export PGHOST=database";\
     echo "export PGPORT=5432";\
     echo "export PGUSER=postgres";\

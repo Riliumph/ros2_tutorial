@@ -7,7 +7,7 @@
 	"dockerComposeFile": [
 		// devcontainerのルールと当プロジェクトの管理手法の兼ね合いで、ルート配置のyamlが先頭であること
 		"../compose.yaml",
-		"docker-compose.yml"
+		"docker-compose.yml",
 	],
 	"mounts": [
 		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
@@ -20,10 +20,10 @@
 	"workspaceFolder": "/workspaces",
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
-		"ghcr.io/devcontainers/features/docker-in-docker:2": {
-			"version": "latest",
-			"dockerDashComposeVersion": "v2"
-		}
+		// "ghcr.io/devcontainers/features/docker-in-docker:2": {
+		// 	"version": "latest",
+		// 	"dockerDashComposeVersion": "v2"
+		// },
 	},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
