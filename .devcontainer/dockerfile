@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM mcr.microsoft.com/devcontainers/cpp:ubuntu-24.04
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -17,6 +17,25 @@ RUN apt-get -qq update &&\
     ## network tools
     curl\
     wget
+
+RUN echo "INSTALL DOCKER"
+ARG DOCKER_GID
+RUN groupadd docker -g ${DOCKER_GID}
+ENV DOCKER_KEYRING_URL=https://download.docker.com/linux/ubuntu/gpg
+ENV DOCKER_KEYRING_PATH=/etc/apt/keyrings/docker.asc
+ENV DOCKER_URI=https://download.docker.com/linux/ubuntu
+RUN CPU_ARCH=$(dpkg --print-architecture) &&\
+    UBUNTU_CODENAME=$(. /etc/os-release && echo ${UBUNTU_CODENAME}) &&\
+    curl -fsSL ${DOCKER_KEYRING_URL} -o ${DOCKER_KEYRING_PATH} &&\
+    echo "deb [arch=${CPU_ARCH} signed-by=${DOCKER_KEYRING_PATH}] ${DOCKER_URI} ${UBUNTU_CODENAME} stable" >/etc/apt/sources.list.d/docker.list
+RUN apt-get -qq update &&\
+    DEBIAN_FRONTEND=noninteractive apt-get -qq install --no-install-recommends -y\
+    docker-ce\
+    docker-ce-cli\
+    containerd.io\
+    docker-buildx-plugin\
+    docker-compose-plugin
+
 
 RUN echo "INSTALL ROS PACKAGES"
 # add ros package repository
@@ -66,10 +85,14 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -qq install --no-install-recommends -
     vim\
     ## network tools
     lsof\
+    ncat\
+    nmap\
     dnsutils\
     iproute2\
     iputils-ping\
     traceroute\
+    ## postgres
+    postgresql-client\
     && apt-get clean\
     && rm -rf /var/lib/apt/lists/*
 
@@ -90,20 +113,25 @@ ARG HADOLINT_PATH=/usr/local/bin/hadolint
 RUN curl -sL --insecure ${HADOLINT_URL} -o ${HADOLINT_PATH} &&\
     chmod +x ${HADOLINT_PATH}
 
+WORKDIR /etc/bash_completion.d
+RUN docker completion bash > docker-completion
+
 # user definition
-ENV USER=ubuntu
+ENV USER=vscode
 ENV SHELL=/bin/bash
-RUN id ubuntu || \
-    useradd -m ${USER} -s ${SHELL} &&\
-    usermod -aG sudo ${USER} &&\
-    echo "${USER}:${USER}" | chpasswd
-USER ubuntu
-WORKDIR /home/ubuntu
-RUN mkdir -p bin
-COPY diff-highlight bin
-# ROS
+RUN usermod -aG sudo ${USER} &&\
+    usermod -aG docker ${USER}
+
+USER 1000
+WORKDIR $HOME/bin
+COPY diff-highlight .
 RUN {\
     echo "source /opt/ros/${ROS_DISTRO}/setup.bash";\
     # pecoのバグ回避策（https://github.com/peco/peco/issues/541）
     echo "export TERM=xterm";\
+    # postgress
+    echo "export PGHOST=database";\
+    echo "export PGPORT=5432";\
+    echo "export PGUSER=postgres";\
+    echo "export PGDATABASE=postgres";\
     } >> "$HOME/.bashrc"

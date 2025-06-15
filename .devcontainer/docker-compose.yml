@@ -7,13 +7,18 @@ services:
     # docker-compose.yml file (the first in the devcontainer.json "dockerComposeFile"
     # array). The sample below assumes your primary file is in the root of your project.
     #
-    # build:
-    #   context: .
-    #   dockerfile: .devcontainer/Dockerfile
-
+    build:
+      # devcontainer.json dockerComposeFile配列の0番目のファイルがルートになる
+      context: .devcontainer
+      dockerfile: dockerfile
+      args:
+        DOCKER_GID: 200
+    hostname: devcontainer
+    shm_size: 256m # GUI用に共有メモリ拡張
     volumes:
       # Update this to wherever you want VS Code to mount the folder of your project
       - .:/workspaces:cached
+      - /var/run/docker.sock:/var/run/docker.sock
       # Uncomment the next four lines if you will use a ptrace-based debugger like C++, Go, and Rust.
       # cap_add:
       #   - SYS_PTRACE
@@ -21,4 +26,8 @@ services:
       #   - seccomp:unconfined
 
       # Overrides default command so things don't shut down after the process ends.
-    command: /bin/sh -c "while sleep 1000; do :; done"
+    command: sleep infinity
+    networks:
+      - ros_nw
+networks:
+  ros_nw:
