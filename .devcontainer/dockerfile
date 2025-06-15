@@ -122,6 +122,7 @@ ENV SHELL=/bin/bash
 RUN usermod -aG sudo ${USER} &&\
     usermod -aG docker ${USER}
 
+USER 1000
 WORKDIR $HOME/bin
 COPY diff-highlight .
 RUN {\
