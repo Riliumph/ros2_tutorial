@@ -116,6 +116,21 @@ RUN curl -sL --insecure ${HADOLINT_URL} -o ${HADOLINT_PATH} &&\
 WORKDIR /etc/bash_completion.d
 RUN docker completion bash > docker-completion
 
+WORKDIR /etc/profile.d
+RUN {\
+    echo "export PGHOST=database";\
+    echo "export PGPORT=5432";\
+    echo "export PGUSER=postgres";\
+    echo "export PGDATABASE=postgres";\
+    } >> postgres.sh
+RUN {\
+    echo "source /opt/ros/${ROS_DISTRO}/setup.bash";\
+    } >> ros.sh
+RUN {\
+    # pecoのバグ回避策（https://github.com/peco/peco/issues/541）
+    echo "export TERM=xterm";\
+    } >> peco.sh
+
 # user definition
 ENV USER=vscode
 ENV SHELL=/bin/bash
@@ -125,13 +140,3 @@ RUN usermod -aG sudo ${USER} &&\
 USER 1000
 WORKDIR $HOME/bin
 COPY diff-highlight .
-RUN {\
-    echo "source /opt/ros/${ROS_DISTRO}/setup.bash";\
-    # pecoのバグ回避策（https://github.com/peco/peco/issues/541）
-    echo "export TERM=xterm";\
-    # postgress
-    echo "export PGHOST=database";\
-    echo "export PGPORT=5432";\
-    echo "export PGUSER=postgres";\
-    echo "export PGDATABASE=postgres";\
-    } >> "$HOME/.bashrc"
