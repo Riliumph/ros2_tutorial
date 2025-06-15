@@ -115,17 +115,15 @@ RUN curl -sL --insecure ${HADOLINT_URL} -o ${HADOLINT_PATH} &&\
 
 WORKDIR /etc/bash_completion.d
 RUN docker completion bash > docker-completion
+
 # user definition
-ENV USER=ubuntu
+ENV USER=vscode
 ENV SHELL=/bin/bash
-RUN id ubuntu || \
-    useradd -m ${USER} -s ${SHELL} &&\
-    usermod -aG sudo ${USER} &&\
-    echo "${USER}:${USER}" | chpasswd
-USER ubuntu
-WORKDIR /home/ubuntu
-RUN mkdir -p bin
-COPY diff-highlight bin
+RUN usermod -aG sudo ${USER} &&\
+    usermod -aG docker ${USER}
+
+WORKDIR $HOME/bin
+COPY diff-highlight .
 RUN {\
     echo "source /opt/ros/${ROS_DISTRO}/setup.bash";\
     # pecoのバグ回避策（https://github.com/peco/peco/issues/541）
