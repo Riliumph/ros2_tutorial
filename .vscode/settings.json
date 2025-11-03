@@ -23,6 +23,23 @@
     "C_Cpp.inlayHints.parameterNames.suppressWhenArgumentContainsName": true,
     "C_Cpp.inlayHints.referenceOperator.enabled": true,
     "[c++]": {
+        "editor.defaultFormatter": "ms-vscode.cpptools",
+        "editor.formatOnSave": true,
+        "editor.tabSize": 2,
+        "files.insertFinalNewline": true
+    },
+    "[dockercompose]": {
+        "editor.defaultFormatter": "ms-azuretools.vscode-docker",
+        "editor.formatOnSave": true,
+        "files.insertFinalNewline": true
+    },
+    "[dockerfile]": {
+        "editor.defaultFormatter": "ms-azuretools.vscode-containers",
+        "editor.formatOnSave": true,
+        "files.insertFinalNewline": true
+    },
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features",
         "editor.formatOnSave": true,
         "editor.tabSize": 2,
         "files.insertFinalNewline": true
@@ -56,6 +73,22 @@
                 }
             }
         ]
+    },
+    "files.watcherExclude": {
+        // * Don't observe this list
+        // * Disable: autoSave, formatOnSave
+        // Default Settings
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/bin": true,
+        "**/obj": true,
+        "**/build": true,
+        "**/install": true,
+        "**/log": true,
+    },
+    "github.copilot.enable": {
+        "*": false,
+        "cpp": true
     },
     "gtest-adapter.debugConfig": [
         "UnitTest"
